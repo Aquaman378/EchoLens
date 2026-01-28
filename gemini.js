@@ -19,7 +19,7 @@ export async function askGemini(prompt) {
                         role: "user",
                         parts: [{
                             // This tells the AI HOW to format the math before it answers
-                            text: "System: Use plain text and unicode math symbols only (±, √, ², ³, π, θ, ÷). Never use LaTeX or $ signs. Answer this: " + prompt
+                            text: "System: Use plain text and unicode math symbols only (±, √, ², ³, π, θ, ÷, *). Never use LaTeX, $, or * signs. Answer this: " + prompt
                         }]
                     }
                 ]
@@ -33,7 +33,11 @@ export async function askGemini(prompt) {
         const text = response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
 
         if (!text) throw new Error("Gemini returned empty text");
-        return text;
+        console.log("Gemini response:", text);
+
+        //Clean up: removes the asterisk multiplication symbols if any remain
+        const cleanedText = text.replace(/\*/g, '');
+        return cleanedText;
 
     } catch (error) {
         const errorMsg = error.response?.data?.error?.message || error.message;
