@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   TouchableOpacity, // Fixed missing import
+  Image,
 } from 'react-native';
 import { askGemini } from './gemini';
 
@@ -43,7 +44,7 @@ export default function App() {
 
   return (
     <SafeAreaView style={styles.mainContainer}>
-      {/* 1. BACKGROUND "WEBSITE" */}
+      {/* 1. BACKGROUND "WEBSITE DISPLAY" */}
       <ScrollView style={styles.websiteContent}>
         <Text style={styles.webTitle}>Echo Lens AI Demo</Text>
         <Text style={styles.webBody}>
@@ -51,7 +52,15 @@ export default function App() {
           view images, or browse products while the AI assistant stays pinned 
           to the corner.
         </Text>
-        <View style={styles.placeholderCard} />
+        <View style={styles.placeholderCard}>
+          <Text style={{ textAlign: 'center', marginTop: 10, color: '#888' }}>
+            Placeholder for Website Content
+          </Text>
+          <View>
+            <Image source={{ uri: 'https://i.pinimg.com/736x/2c/96/46/2c9646fc4c730e26bfd230e6822449a5.jpg' }} style={styles.image} />
+          </View>
+        </View>
+
         <View style={styles.placeholderCard} />
       </ScrollView>
 
@@ -116,7 +125,7 @@ const styles = StyleSheet.create({
   websiteContent: { padding: 20 },
   webTitle: { fontSize: 32, fontWeight: 'bold', color: '#1a1a1a', marginBottom: 10 },
   webBody: { fontSize: 16, color: '#444', lineHeight: 24 },
-  placeholderCard: { height: 200, backgroundColor: '#eee', borderRadius: 15, marginTop: 20 },
+  placeholderCard: { height: 500, backgroundColor: '#eee', borderRadius: 15, marginTop: 20, overflow: 'hidden' },
   
   fab: {
     position: 'absolute',
@@ -152,6 +161,7 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     overflow: 'hidden',
   },
+  image: { width: '50%', height: 300, borderRadius: 20, marginTop: 10, alignSelf: 'center' },
   chatHeader: { backgroundColor: '#007AFF', padding: 15, flexDirection: 'row', justifyContent: 'space-between' },
   chatHeaderText: { color: 'white', fontWeight: 'bold', fontSize: 16 },
   chatBox: { flex: 1, padding: 15 },
