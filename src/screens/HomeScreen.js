@@ -6,9 +6,35 @@ import {
     StyleSheet,
     TouchableOpacity,
     Image,
+    Alert,
+    Platform, // Standard React Native Alert
 } from 'react-native';
 
+// REMOVED: import AppNavigator from '../navigation/AppNavigator'; 
+// Reason: This causes a circular dependency and isn't needed here.
+
 export default function HomeScreen({ navigation }) {
+
+    const handleGetStarted = () => {
+        if (Platform.OS === 'web') {
+            // Simple browser alert for Web
+            const confirmEntry = window.confirm("Ready to explore? You are about to enter the Echo Lens Lab.");
+            if (confirmEntry) {
+                navigation.navigate('Lab');
+            }
+        } else {
+            // Fancy native alert for iOS/Android
+            Alert.alert(
+                "Ready to explore?",
+                "You are about to enter the Echo Lens Lab.",
+                [
+                    { text: "Cancel", style: "cancel" },
+                    { text: "OK", onPress: () => navigation.navigate('Lab') }
+                ]
+            );
+        }
+    };
+
     return (
         <ScrollView stickyHeaderIndices={[0]} style={styles.websiteContent}>
             {/* 1. Sticky Navbar */}
@@ -25,11 +51,11 @@ export default function HomeScreen({ navigation }) {
                 <Text style={styles.webTitle}>The Future of Vision</Text>
                 <Text style={styles.webBody}>
                     Experience AI-driven insights integrated directly into your workflow.
-                    Our assistant is ready to help you solve complex problems in real-time.
                 </Text>
+
                 <TouchableOpacity
                     style={styles.ctaButton}
-                    onPress={() => navigation.navigate('Lab')} // Add this line
+                    onPress={handleGetStarted}
                 >
                     <Text style={styles.ctaText}>Get Started</Text>
                 </TouchableOpacity>
@@ -39,7 +65,6 @@ export default function HomeScreen({ navigation }) {
             <View style={styles.sectionContainer}>
                 <Text style={styles.sectionTitle}>Key Features</Text>
 
-                {/* Feature Card 1 */}
                 <View style={styles.featureCard}>
                     <Image
                         source={{ uri: 'https://picsum.photos/seed/tech/400/200' }}
@@ -53,7 +78,6 @@ export default function HomeScreen({ navigation }) {
                     </View>
                 </View>
 
-                {/* Feature Card 2 */}
                 <View style={styles.featureCard}>
                     <View style={styles.cardContent}>
                         <Text style={styles.cardTitle}>24/7 Support</Text>
@@ -64,11 +88,11 @@ export default function HomeScreen({ navigation }) {
                 </View>
             </View>
 
-            {/* Extra bottom padding so content isn't hidden by the Chat FAB */}
             <View style={{ height: 120 }} />
         </ScrollView>
     );
 }
+
 
 const styles = StyleSheet.create({
     websiteContent: { flex: 1, backgroundColor: '#fff' },
