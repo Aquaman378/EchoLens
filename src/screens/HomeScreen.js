@@ -7,144 +7,223 @@ import {
     TouchableOpacity,
     Image,
     Alert,
-    Platform, // Standard React Native Alert
+    Platform,
 } from 'react-native';
 
 export default function HomeScreen({ navigation }) {
 
     const handleGetStarted = () => {
         if (Platform.OS === 'web') {
-            // Simple browser alert for Web
-            const confirmEntry = window.confirm("Ready to explore? You are about to enter the Echo Lens Lab.");
-            if (confirmEntry) {
-                navigation.navigate('Lab');
-            }
+            navigation.navigate('Lab');
         } else {
-            // Fancy native alert for iOS/Android
             Alert.alert(
-                "Ready to explore?",
-                "You are about to enter the Echo Lens Lab.",
+                "INITIALIZE TERMINAL",
+                "Open Laboratory for image processing?",
                 [
-                    { text: "Cancel", style: "cancel" },
-                    { text: "OK", onPress: () => navigation.navigate('Lab') }
+                    { text: "CANCEL", style: "cancel" },
+                    { text: "OPEN", onPress: () => navigation.navigate('Lab') }
                 ]
             );
         }
     };
 
     return (
-        <ScrollView stickyHeaderIndices={[0]} style={styles.websiteContent}>
-            {/* 1. Sticky Navbar */}
-            <View style={styles.navbar}>
-                <Text style={styles.navLogo}>ECHO LENS</Text>
-                <View style={styles.navLinks}>
-                    <Text style={styles.navText}>Products</Text>
-                    <Text style={styles.navText}>About</Text>
-                </View>
-            </View>
-
-            {/* 2. Hero Section */}
-            <View style={styles.heroSection}>
-                <Text style={styles.webTitle}>The Future of Vision</Text>
-                <Text style={styles.webBody}>
-                    Experience AI-driven insights integrated directly into your workflow.
-                </Text>
-
-                <TouchableOpacity
-                    style={styles.ctaButton}
-                    onPress={handleGetStarted}
-                >
-                    <Text style={styles.ctaText}>Get Started</Text>
-                </TouchableOpacity>
-            </View>
-
-            {/* 3. Features Section */}
-            <View style={styles.sectionContainer}>
-                <Text style={styles.sectionTitle}>Key Features</Text>
-
-                <View style={styles.featureCard}>
-                    <Image
-                        source={{ uri: 'https://picsum.photos/seed/tech/400/200' }}
-                        style={styles.cardImage}
-                    />
-                    <View style={styles.cardContent}>
-                        <Text style={styles.cardTitle}>Intelligent Analysis</Text>
-                        <Text style={styles.cardDescription}>
-                            Ask questions about what you see and get instant, math-accurate responses.
-                        </Text>
+        <View style={styles.mainContainer}>
+            <ScrollView stickyHeaderIndices={[0]} style={styles.websiteContent}>
+                
+                {/* NAVIGATION - Glassmorphism with Blue Tint */}
+                <View style={styles.navbar}>
+                    <Text style={styles.navLogo}>ECHO_<Text style={styles.brandBlue}>LENS</Text></Text>
+                    <View style={styles.statusGroup}>
+                        <View style={styles.statusPill}>
+                            <View style={styles.onlineDot} />
+                            <Text style={styles.statusText}>LIVE_LINK</Text>
+                        </View>
                     </View>
                 </View>
 
-                <View style={styles.featureCard}>
-                    <View style={styles.cardContent}>
-                        <Text style={styles.cardTitle}>24/7 Support</Text>
-                        <Text style={styles.cardDescription}>
-                            Our AI assistant is always online, pinned to your screen for immediate help.
-                        </Text>
+                {/* HERO SECTION - Deep Gradient Background */}
+                <View style={styles.heroSection}>
+                    <View style={styles.accentGlow} />
+                    <Text style={styles.webTitle}>IMAGE_DIGESTION_UNIT</Text>
+                    <Text style={styles.heroSubText}>PRECISION_EDITING_FOR_THE_VISUAL_ARTIST</Text>
+                    
+                    <Text style={styles.webBody}>
+                        Accelerate your post-production. Non-destructive pixel manipulation 
+                        powered by low-latency hardware acceleration.
+                    </Text>
+
+                    <TouchableOpacity
+                        style={styles.ctaButton}
+                        onPress={handleGetStarted}
+                    >
+                        <Text style={styles.ctaText}>START_PROCESSING_PROTOCOL</Text>
+                    </TouchableOpacity>
+                </View>
+
+                {/* COLORFUL STATS BAR */}
+                <View style={styles.statsBar}>
+                    <View style={styles.statItem}>
+                        <Text style={[styles.statValue, {color: '#00F0FF'}]}>4K+</Text>
+                        <Text style={styles.statLabel}>RESOLUTION</Text>
+                    </View>
+                    <View style={[styles.statItem, styles.statBorder]}>
+                        <Text style={[styles.statValue, {color: '#FFD700'}]}>RAW</Text>
+                        <Text style={styles.statLabel}>ENGINE</Text>
+                    </View>
+                    <View style={styles.statItem}>
+                        <Text style={[styles.statValue, {color: '#FF007A'}]}>120</Text>
+                        <Text style={styles.statLabel}>FPS_SYNC</Text>
                     </View>
                 </View>
-            </View>
 
-            <View style={{ height: 120 }} />
-        </ScrollView>
+                {/* PROTOCOLS SECTION */}
+                <View style={styles.sectionContainer}>
+                    <Text style={styles.sectionHeader}>CORE_SYSTEM_MODULES</Text>
+
+                    <View style={styles.protocolRow}>
+                        {/* Blue Module */}
+                        <View style={[styles.protocolCard, {borderColor: '#007AFF33'}]}>
+                            <View style={[styles.colorBar, {backgroundColor: '#007AFF'}]} />
+                            <Text style={styles.protocolTitle}>CHROMATIC_BALANCE</Text>
+                            <Text style={styles.protocolDesc}>
+                                High-fidelity color correction with real-time histogram feedback.
+                            </Text>
+                        </View>
+
+                        {/* Teal Module */}
+                        <View style={[styles.protocolCard, {borderColor: '#00F0FF33'}]}>
+                            <View style={[styles.colorBar, {backgroundColor: '#00F0FF'}]} />
+                            <Text style={[styles.protocolTitle, {color: '#00F0FF'}]}>LUMINANCE_CONTROL</Text>
+                            <Text style={styles.protocolDesc}>
+                                Precision exposure mapping and shadow recovery algorithms.
+                            </Text>
+                        </View>
+
+                        {/* Gold Module */}
+                        <View style={[styles.protocolCard, {borderColor: '#FFD70033'}]}>
+                            <View style={[styles.colorBar, {backgroundColor: '#FFD700'}]} />
+                            <Text style={[styles.protocolTitle, {color: '#FFD700'}]}>INSTANT_DISPATCH</Text>
+                            <Text style={styles.protocolDesc}>
+                                Export optimized assets directly to local storage in standard formats.
+                            </Text>
+                        </View>
+                    </View>
+                </View>
+
+                <View style={styles.footer}>
+                    <Text style={styles.footerText}>SYNC_STATUS: <Text style={{color: '#00FF41'}}>OPTIMIZED</Text></Text>
+                </View>
+
+            </ScrollView>
+        </View>
     );
 }
 
-
 const styles = StyleSheet.create({
-    websiteContent: { flex: 1, backgroundColor: '#fff' },
+    mainContainer: { flex: 1, backgroundColor: '#020204' },
+    websiteContent: { flex: 1 },
 
-    // Navbar Styles
+    // Navbar
     navbar: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         padding: 20,
-        backgroundColor: 'rgba(255,255,255,0.95)',
+        backgroundColor: 'rgba(5, 5, 10, 0.95)',
         borderBottomWidth: 1,
-        borderBottomColor: '#eee',
+        borderBottomColor: '#1A1A2E',
     },
-    navLogo: { fontSize: 18, fontWeight: '900', color: '#007AFF', letterSpacing: 1 },
-    navLinks: { flexDirection: 'row' },
-    navText: { marginLeft: 15, color: '#666', fontWeight: '500' },
-
-    // Hero Section Styles
-    heroSection: {
-        padding: 40,
-        backgroundColor: '#f8f9fa',
-        alignItems: 'center',
-        borderBottomWidth: 1,
-        borderBottomColor: '#eee',
-    },
-    webTitle: { fontSize: 32, fontWeight: 'bold', color: '#1a1a1a', textAlign: 'center', marginBottom: 10 },
-    webBody: { fontSize: 16, color: '#444', lineHeight: 24, textAlign: 'center' },
-    ctaButton: {
-        marginTop: 25,
-        backgroundColor: '#007AFF',
-        paddingHorizontal: 30,
-        paddingVertical: 12,
-        borderRadius: 25,
-    },
-    ctaText: { color: 'white', fontWeight: 'bold', fontSize: 16 },
-
-    // Features Styles
-    sectionContainer: { padding: 20 },
-    sectionTitle: { fontSize: 24, fontWeight: 'bold', marginBottom: 20, color: '#1a1a1a' },
-    featureCard: {
-        backgroundColor: 'white',
-        borderRadius: 15,
-        marginBottom: 20,
-        elevation: 4, // Shadow for Android
-        shadowColor: '#000', // Shadow for iOS
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-        overflow: 'hidden',
+    navLogo: { fontSize: 16, fontWeight: '900', color: '#FFF', letterSpacing: 3 },
+    brandBlue: { color: '#007AFF' },
+    statusPill: { 
+        flexDirection: 'row', 
+        alignItems: 'center', 
+        backgroundColor: '#00FF4115', 
+        paddingHorizontal: 12, 
+        paddingVertical: 6, 
+        borderRadius: 20,
         borderWidth: 1,
-        borderColor: '#f0f0f0',
+        borderColor: '#00FF4133'
     },
-    cardImage: { width: '100%', height: 160 },
-    cardContent: { padding: 20 },
-    cardTitle: { fontSize: 18, fontWeight: 'bold', color: '#333' },
-    cardDescription: { color: '#666', marginTop: 8, lineHeight: 22 },
+    onlineDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#00FF41', marginRight: 8 },
+    statusText: { color: '#00FF41', fontSize: 9, fontWeight: '900' },
+
+    // Hero
+    heroSection: {
+        paddingVertical: 100,
+        paddingHorizontal: 20,
+        alignItems: 'center',
+        backgroundColor: '#05050A',
+        overflow: 'hidden',
+    },
+    accentGlow: {
+        position: 'absolute',
+        top: -100,
+        width: 400,
+        height: 400,
+        backgroundColor: '#007AFF15',
+        borderRadius: 200,
+        filter: Platform.OS === 'web' ? 'blur(80px)' : 'none',
+    },
+    webTitle: { fontSize: 48, fontWeight: '900', color: '#FFF', textAlign: 'center', letterSpacing: -1 },
+    heroSubText: { color: '#007AFF', fontSize: 10, fontWeight: 'bold', letterSpacing: 4, marginTop: 10 },
+    webBody: { 
+        fontSize: 15, 
+        color: '#8E8E93', 
+        textAlign: 'center', 
+        marginTop: 25, 
+        maxWidth: 600,
+        lineHeight: 24 
+    },
+    ctaButton: {
+        marginTop: 50,
+        backgroundColor: '#007AFF',
+        paddingHorizontal: 40,
+        paddingVertical: 20,
+        borderRadius: 4,
+        shadowColor: '#007AFF',
+        shadowOpacity: 0.5,
+        shadowRadius: 20,
+    },
+    ctaText: { color: '#FFF', fontWeight: '900', fontSize: 13, letterSpacing: 2 },
+
+    // Colorful Stats Bar
+    statsBar: {
+        flexDirection: 'row',
+        backgroundColor: '#0A0A10',
+        borderTopWidth: 1,
+        borderBottomWidth: 1,
+        borderColor: '#1A1A2E',
+        paddingVertical: 30,
+    },
+    statItem: { flex: 1, alignItems: 'center' },
+    statBorder: { borderLeftWidth: 1, borderRightWidth: 1, borderColor: '#1A1A2E' },
+    statValue: { fontSize: 24, fontWeight: '900' },
+    statLabel: { color: '#444', fontSize: 10, fontWeight: 'bold', marginTop: 6, letterSpacing: 1 },
+
+    // Protocols
+    sectionContainer: { padding: 40 },
+    sectionHeader: { color: '#333', fontSize: 11, fontWeight: '900', letterSpacing: 4, marginBottom: 30 },
+    protocolRow: { gap: 20 },
+    protocolCard: { 
+        backgroundColor: '#0D0D15', 
+        padding: 30, 
+        borderRadius: 8, 
+        borderWidth: 1,
+        position: 'relative',
+        overflow: 'hidden'
+    },
+    colorBar: {
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        bottom: 0,
+        width: 4,
+    },
+    protocolTitle: { color: '#007AFF', fontSize: 15, fontWeight: '900', marginBottom: 12, letterSpacing: 1 },
+    protocolDesc: { color: '#777', fontSize: 13, lineHeight: 22 },
+
+    footer: { padding: 60, alignItems: 'center', borderTopWidth: 1, borderTopColor: '#111' },
+    footerText: { color: '#333', fontSize: 11, fontWeight: 'bold', letterSpacing: 2 }
 });
