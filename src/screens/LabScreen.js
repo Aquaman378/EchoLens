@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -6,11 +6,8 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
-  Alert,
   Platform,
   useWindowDimensions,
-  SafeAreaView,
-  safeAreaContext,
 } from 'react-native';
 
 import * as ImagePicker from 'expo-image-picker';
@@ -21,77 +18,72 @@ export default function LabScreen({ navigation }) {
   const { width } = useWindowDimensions();
   const isDesktop = width > 800;
 
+  // 1. LIMIT TO TOP 6 ESSENTIAL CONTROLS
   const [settings, setSettings] = useState({
-    exposure: 0,     
-    brilliance: 0,  
-    highlights: 0, 
-    shadows: 0,    
-    contrast: 0,    
-    brightness: 0,  
-    blackPoint: 0,
-    saturation: 0,  
-    vibrance: 0,    
-    warmth: 0,      
-    tint: 0,        
-    sharpness: 0,  
-    definition: 0,  
+    exposure: 0,
+    contrast: 0,
+    brightness: 0,
+    saturation: 0,
+    warmth: 0,
+    tint: 0,
   });
 
-  // --- IMPROVED FILTER LOGIC ---
+  const updateSetting = (key, val) => setSettings(prev => ({ ...prev, [key]: val }));
+
+  // 2. FILTER STRING FOR LIVE PREVIEW
   const generateFilterString = () => {
     if (Platform.OS !== 'web' || !image) return {};
 
-    // Map -100/100 ranges to CSS decimal values (0.0 to 2.0)
-    const b = 1 + (settings.brightness / 100) + (settings.exposure / 100) + (settings.brilliance / 200);
-    const c = 1 + (settings.contrast / 100) + (settings.definition / 200);
-    const s = 1 + (settings.saturation / 100) + (settings.vibrance / 200);
-    
-    // Warmth uses sepia, Tint uses hue-rotate
+    const b = 1 + (settings.brightness / 100) + (settings.exposure / 100);
+    const c = 1 + (settings.contrast / 100);
+    const s = 1 + (settings.saturation / 100);
     const sepia = Math.max(0, settings.warmth / 100);
-    const hue = settings.tint;
-
-    // Simulate Highlights/Shadows/Black Point via contrast and brightness curves
-    const brightnessOffset = (settings.highlights / 250) + (settings.shadows / 250) + (settings.blackPoint / 300);
 
     return {
-      filter: `brightness(${b + brightnessOffset}) contrast(${c}) saturate(${s}) sepia(${sepia}) hue-rotate(${hue}deg)`,
-      WebkitFilter: `brightness(${b + brightnessOffset}) contrast(${c}) saturate(${s}) sepia(${sepia}) hue-rotate(${hue}deg)`,
+      filter: `brightness(${b}) contrast(${c}) saturate(${s}) sepia(${sepia}) hue-rotate(${settings.tint}deg)`,
+      WebkitFilter: `brightness(${b}) contrast(${c}) saturate(${s}) sepia(${sepia}) hue-rotate(${settings.tint}deg)`,
     };
   };
 
-  const updateSetting = (key, val) => {
-    setSettings(prev => ({ ...prev, [key]: val }));
-  };
+  // 3. SAVE TO DEVICE (WEB DOWNLOAD)
+  const saveImage = () => {
+  if (!image) return alert("No image to save!");
 
-  const saveToDevice = (imgElementId) => {
-    const img = document.getElementById(imgElementId);
-    fetch(img.src)
-      .then(res => res.blob())
-      .then(blob => {
-        const reader = new FileReader();
-        reader.onloadend = function() {
-          localStorage.setItem('savedImage', reader.result); // Save as Base64
-          alert("Image saved to localStorage!");
-        };
-        reader.readAsDataURL(blob);
-      })
-    .catch(err => console.error("Error saving image:", err));
-}
+  if (Platform.OS === 'web') {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new window.Image();
+    img.crossOrigin = "anonymous";
+    img.src = image;
 
-  const pickImage = async () => {
-    const { status } = await ImagePicker.getMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      const { status: newStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (newStatus !== 'granted') return;
-    }
-    
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      quality: 1,
-    });
-    if (!result.canceled) setImage(result.assets[0].uri);
-  };
+    img.onload = () => {
+      canvas.width = img.width;
+      canvas.height = img.height;
+
+      const b = 1 + (settings.brightness / 100) + (settings.exposure / 100);
+      const c = 1 + (settings.contrast / 100);
+      const s = 1 + (settings.saturation / 100);
+      const sepia = Math.max(0, settings.warmth / 100);
+
+      ctx.filter = `
+        brightness(${b})
+        contrast(${c})
+        saturate(${s})
+        sepia(${sepia})
+        hue-rotate(${settings.tint}deg)
+      `;
+
+      ctx.drawImage(img, 0, 0);
+
+      const link = document.createElement('a');
+      link.download = 'edited-lab-image.png';
+      link.href = canvas.toDataURL();
+      link.click();
+    };
+  } else {
+    alert("Save feature for mobile requires expo-media-library.");
+  }
+};
 
   const renderSlider = (label, key, min, max) => (
     <View style={styles.sliderRow} key={key}>
@@ -113,255 +105,66 @@ export default function LabScreen({ navigation }) {
   );
 
   return (
-    <safeAreaContext style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backText}>← EXIT_LAB</Text>
+          <Text style={styles.backText}>← EXIT</Text>
         </TouchableOpacity>
-        <View style={styles.headerTitleContainer}>
-          <Text style={styles.headerTitle}>LABORATORY_01</Text>
-          <View style={styles.statusIndicator}>
-            <View style={styles.pulseDot} />
-            <Text style={styles.statusText}>SYSTEM_ACTIVE</Text>
-          </View>
-        </View>
+        <Text style={styles.headerTitle}>LAB_01</Text>
+        <TouchableOpacity onPress={saveImage} style={styles.saveBtn}>
+          <Text style={styles.saveBtnText}>SAVE</Text>
+        </TouchableOpacity>
       </View>
-      <safeAreaView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-        <View style={[styles.responsiveWrapper, { flexDirection: isDesktop ? 'row' : 'column' }]}>
-          
-          <View style={[styles.card, isDesktop ? { flex: 1.5, alignSelf: 'flex-start' } : { width: '100%' }]}>
-            <Text style={styles.cardLabel}>PRIMARY_VISUALIZER</Text>
-            <TouchableOpacity onPress={pickImage} style={styles.visualizerContainer}>
+
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+        <View style={[styles.wrapper, { flexDirection: isDesktop ? 'row' : 'column' }]}>
+
+          <View style={[styles.card, isDesktop && { flex: 1.2 }]}>
+            <TouchableOpacity onPress={async () => {
+              let res = await ImagePicker.launchImageLibraryAsync({ quality: 1 });
+              if (!res.canceled) setImage(res.assets[0].uri);
+            }} style={styles.visualizer}>
               {image ? (
-                <Image source={{ uri: image }} style={[styles.mainImage, generateFilterString()]} />
+                <Image source={{ uri: image }} style={[styles.img, generateFilterString()]} />
               ) : (
-                <View style={styles.placeholderVisualizer}>
-                  <Text style={styles.placeholderText}>[ SELECT_SOURCE_IMAGE ]</Text>
-                </View>
+                <Text style={styles.placeholder}>[ IMPORT_DATA ]</Text>
               )}
             </TouchableOpacity>
-          </View> 
+          </View>
 
-          <View style={[isDesktop ? { flex: 1 } : { width: '100%' }]}>
-            <View style={styles.card}>
-              <Text style={styles.cardLabel}>IMAGE_ADJUSTMENTS</Text>
-              
-              {renderSlider("Exposure", "exposure", -100, 100)}
-              {renderSlider("Brilliance", "brilliance", -100, 100)}
-              {renderSlider("Highlights", "highlights", -100, 100)}
-              {renderSlider("Shadows", "shadows", -100, 100)}
-              {renderSlider("Contrast", "contrast", -100, 100)}
-              {renderSlider("Brightness", "brightness", -100, 100)}
-              {renderSlider("Black Point", "blackPoint", -100, 100)}
-              {renderSlider("Saturation", "saturation", -100, 100)}
-              {renderSlider("Vibrance", "vibrance", -100, 100)}
-              {renderSlider("Warmth", "warmth", -100, 100)}
-              {renderSlider("Tint", "tint", -100, 100)}
-              {renderSlider("Sharpness", "sharpness", 0, 100)}
-              {renderSlider("Definition", "definition", 0, 100)}
-            </View>\
+          <View style={[styles.card, isDesktop && { flex: 1 }]}>
+            <Text style={styles.cardLabel}>ADJUSTMENTS</Text>
+            {renderSlider("Exposure", "exposure", -100, 100)}
+            {renderSlider("Contrast", "contrast", -100, 100)}
+            {renderSlider("Brightness", "brightness", -100, 100)}
+            {renderSlider("Saturation", "saturation", -100, 100)}
+            {renderSlider("Warmth", "warmth", -100, 100)}
+            {renderSlider("Tint", "tint", -100, 100)}
           </View>
         </View>
-      </safeAreaView>
-      <View style={[styles.dock, { width: isDesktop ? 450 : '90%', alignSelf: 'center' }]}>
-        {['THERMAL', 'DATA', 'ECHO'].map((mode) => (
-          <TouchableOpacity key={mode} style={styles.dockButton}>
-            <Text style={styles.dockButtonText}>{mode}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-    </safeAreaContext>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#0A0A0A',
-  },
-
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#1A1A1A',
-    backgroundColor: '#0A0A0A',
-    zIndex: 10,
-  },
-
-  backText: {
-    color: '#007AFF',
-    fontSize: 10,
-    fontWeight: '900',
-    letterSpacing: 1,
-  },
-
-  headerTitleContainer: {
-    alignItems: 'flex-end',
-  },
-
-  headerTitle: {
-    color: '#007AFF',
-    fontSize: 12,
-    fontWeight: '900',
-    letterSpacing: 2,
-  },
-
-  statusIndicator: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 4,
-  },
-
-  statusText: {
-    color: '#555',
-    fontSize: 9,
-    fontWeight: 'bold',
-  },
-
-  pulseDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#00FF41',
-    marginRight: 6,
-  },
-
-  scrollView: {
-    flex: 1,
-    width: '100%',
-  },
-
-  scrollContent: {
-    padding: 20,
-    paddingBottom: 200,
-    alignItems: 'center',
-    flexGrow: 1,
-  },
-
-  responsiveWrapper: {
-    width: '100%',
-    maxWidth: 1200,
-    gap: 20,
-  },
-
-  card: {
-    backgroundColor: '#141414',
-    borderRadius: 12,
-    padding: 15,
-    borderWidth: 1,
-    borderColor: '#222',
-    marginBottom: 15,
-  },
-
-  cardLabel: {
-    color: '#444',
-    fontSize: 10,
-    fontWeight: 'bold',
-    marginBottom: 15,
-    letterSpacing: 1,
-  },
-
-  visualizerContainer: {
-    width: '100%',
-    aspectRatio: 4 / 3,
-    borderRadius: 8,
-    overflow: 'hidden',
-    backgroundColor: '#000',
-  },
-
-  mainImage: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'contain',
-  },
-
-  placeholderVisualizer: {
-    flex: 1,
-    minHeight: 250,
-    backgroundColor: '#0F0F0F',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderStyle: 'dashed',
-    borderWidth: 1,
-    borderColor: '#333',
-  },
-
-  placeholderText: {
-    color: '#007AFF',
-    fontSize: 9,
-    fontWeight: 'bold',
-  },
-
-  sliderRow: {
-    marginVertical: 10,
-  },
-
-  labelRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 5,
-  },
-
-  controlText: {
-    color: '#fff',
-    fontSize: 9,
-    fontWeight: 'bold',
-  },
-
-  valueText: {
-    color: '#007AFF',
-    fontSize: 10,
-    fontWeight: 'bold',
-  },
-
-  slider: {
-    width: '100%',
-    height: 30,
-  },
-
-  saveButton: {
-    marginTop: 20,
-    backgroundColor: '#007AFF',
-    padding: 14,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-
-  saveButtonText: {
-    color: '#fff',
-    fontSize: 10,
-    fontWeight: '900',
-    letterSpacing: 2,
-  },
-
-  dock: {
-    position: 'absolute',
-    bottom: 30,
-    backgroundColor: 'rgba(20,20,20,0.95)',
-    height: 65,
-    borderRadius: 35,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#333',
-    paddingHorizontal: 20,
-    zIndex: 100,
-  },
-
-  dockButton: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-  },
-
-  dockButtonText: {
-    color: '#fff',
-    fontSize: 10,
-    fontWeight: 'bold',
-    letterSpacing: 1,
-  },
+  container: { flex: 1, backgroundColor: '#0A0A0A', height: Platform.OS === 'web' ? '100vh' : '100%' },
+  header: { height: 70, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, borderBottomWidth: 1, borderBottomColor: '#222' },
+  headerTitle: { color: '#007AFF', fontWeight: '900', letterSpacing: 2 },
+  backText: { color: '#444', fontSize: 10, fontWeight: 'bold' },
+  saveBtn: { backgroundColor: '#007AFF', paddingHorizontal: 15, paddingVertical: 8, borderRadius: 5 },
+  saveBtnText: { color: '#fff', fontSize: 10, fontWeight: '900' },
+  scrollView: { flex: 1 },
+  scrollContent: { padding: 20, paddingBottom: 100 },
+  wrapper: { width: '100%', maxWidth: 1000, alignSelf: 'center', gap: 20 },
+  card: { backgroundColor: '#141414', padding: 20, borderRadius: 12, borderWidth: 1, borderColor: '#222' },
+  cardLabel: { color: '#444', fontSize: 10, fontWeight: 'bold', marginBottom: 15 },
+  visualizer: { width: '100%', aspectRatio: 4 / 3, backgroundColor: '#000', borderRadius: 8, justifyContent: 'center', alignItems: 'center', overflow: 'hidden' },
+  img: { width: '100%', height: '100%', resizeMode: 'contain' },
+  placeholder: { color: '#007AFF', fontSize: 10, fontWeight: 'bold' },
+  sliderRow: { marginVertical: 10 },
+  labelRow: { flexDirection: 'row', justifyContent: 'space-between' },
+  controlText: { color: '#888', fontSize: 9, fontWeight: 'bold' },
+  valueText: { color: '#007AFF', fontSize: 10, fontWeight: 'bold' },
+  slider: { width: '100%', height: 30 },
 });
