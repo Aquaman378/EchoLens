@@ -10,9 +10,6 @@ import {
     Platform, // Standard React Native Alert
 } from 'react-native';
 
-// REMOVED: import AppNavigator from '../navigation/AppNavigator'; 
-// Reason: This causes a circular dependency and isn't needed here.
-
 export default function HomeScreen({ navigation }) {
 
     const handleGetStarted = () => {
