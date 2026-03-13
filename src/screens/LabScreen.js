@@ -12,9 +12,12 @@ import {
 
 import * as ImagePicker from 'expo-image-picker';
 import Slider from '@react-native-community/slider';
+import QRCode from 'react-native-qrcode-svg'; // Ensure this is installed
 
 export default function LabScreen({ navigation }) {
   const [image, setImage] = useState(null);
+  const [isSharing, setIsSharing] = useState(false);
+  const [generatedLink, setGeneratedLink] = useState('');
   const { width } = useWindowDimensions();
   const isDesktop = width > 800;
 
@@ -25,18 +28,16 @@ export default function LabScreen({ navigation }) {
     saturation: 0,
     warmth: 0,
     tint: 0,
-    blur: 0,       // New: 0 to 20
-    grayscale: 0,  // New: 0 to 100
-    invert: 0,     // New: 0 to 100
+    blur: 0,
+    grayscale: 0,
+    invert: 0,
   };
 
   const [settings, setSettings] = useState(initialSettings);
 
   const updateSetting = (key, val) => setSettings(prev => ({ ...prev, [key]: val }));
-  
   const resetSettings = () => setSettings(initialSettings);
 
-  // Helper to calculate the filter string for both Preview and Canvas
   const getFilterValues = () => {
     const b = 1 + (settings.brightness / 100) + (settings.exposure / 100);
     const c = 1 + (settings.contrast / 100);
@@ -45,7 +46,6 @@ export default function LabScreen({ navigation }) {
     const gray = settings.grayscale / 100;
     const inv = settings.invert / 100;
     const blurPx = settings.blur;
-    
     return `brightness(${b}) contrast(${c}) saturate(${s}) sepia(${sepia}) hue-rotate(${settings.tint}deg) grayscale(${gray}) invert(${inv}) blur(${blurPx}px)`;
   };
 
@@ -55,29 +55,32 @@ export default function LabScreen({ navigation }) {
     return { filter: filters, WebkitFilter: filters };
   };
 
+  // --- ZENO CLOUD DISPATCH LOGIC ---
+  const handleDispatch = () => {
+    if (!image) return alert("SELECT IMAGE BEFORE DISPATCH");
+    const sessionID = Math.random().toString(36).substring(7);
+    setGeneratedLink(`https://echo-lens.cloud/share/${sessionID}`);
+    setIsSharing(true);
+  };
+
   const saveImage = () => {
     if (!image) return alert("No image to save!");
-
     if (Platform.OS === 'web') {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
       const img = new window.Image();
       img.crossOrigin = "anonymous";
       img.src = image;
-
       img.onload = () => {
         canvas.width = img.width;
         canvas.height = img.height;
         ctx.filter = getFilterValues();
         ctx.drawImage(img, 0, 0);
-
         const link = document.createElement('a');
         link.download = `lab-export-${Date.now()}.png`;
         link.href = canvas.toDataURL();
         link.click();
       };
-    } else {
-      alert("Mobile save requires expo-media-library and FileSystem.");
     }
   };
 
@@ -103,19 +106,25 @@ export default function LabScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
+      {/* HEADER */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Text style={styles.backText}>← EXIT</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>LAB_01</Text>
-        <TouchableOpacity onPress={saveImage} style={styles.saveBtn}>
-          <Text style={styles.saveBtnText}>SAVE_IMAGE</Text>
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', gap: 10 }}>
+          <TouchableOpacity onPress={handleDispatch} style={[styles.saveBtn, { backgroundColor: '#FF007A' }]}>
+            <Text style={styles.saveBtnText}>SHARE_LINK</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={saveImage} style={styles.saveBtn}>
+            <Text style={styles.saveBtnText}>SAVE_IMAGE</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         <View style={[styles.wrapper, { flexDirection: isDesktop ? 'row' : 'column' }]}>
-
+          {/* IMAGE PREVIEW */}
           <View style={[styles.card, isDesktop && { flex: 1.2, alignSelf: 'flex-start' }]}>
             <TouchableOpacity onPress={async () => {
               let res = await ImagePicker.launchImageLibraryAsync({ quality: 1 });
@@ -129,14 +138,14 @@ export default function LabScreen({ navigation }) {
             </TouchableOpacity>
           </View>
 
+          {/* SLIDERS */}
           <View style={[styles.card, isDesktop && { flex: 1 }]}>
             <View style={styles.cardHeader}>
-                <Text style={styles.cardLabel}>ADJUSTMENTS</Text>
-                <TouchableOpacity onPress={resetSettings}>
-                    <Text style={styles.resetText}>RESET</Text>
-                </TouchableOpacity>
+              <Text style={styles.cardLabel}>ADJUSTMENTS</Text>
+              <TouchableOpacity onPress={resetSettings}>
+                <Text style={styles.resetText}>RESET</Text>
+              </TouchableOpacity>
             </View>
-            
             {renderSlider("Exposure", "exposure", -100, 100)}
             {renderSlider("Contrast", "contrast", -100, 100)}
             {renderSlider("Brightness", "brightness", -100, 100)}
@@ -149,6 +158,36 @@ export default function LabScreen({ navigation }) {
           </View>
         </View>
       </ScrollView>
+
+      {/* ZENO-STYLE DISPATCH MODAL */}
+      {isSharing && (
+        <View style={styles.shareOverlay}>
+          <View style={styles.shareModal}>
+            <Text style={styles.modalHeader}>CLOUD_DISPATCH_PROTOCOL</Text>
+            <View style={styles.qrWrapper}>
+              <QRCode value={generatedLink} size={160} color="#007AFF" backgroundColor="white" />
+            </View>
+            <Text style={styles.linkDisplay}>{generatedLink}</Text>
+            <View style={styles.modalActions}>
+              <TouchableOpacity 
+                style={styles.actionBtn} 
+                onPress={() => {
+                  if(Platform.OS === 'web') navigator.clipboard.writeText(generatedLink);
+                  alert("LINK_COPIED");
+                }}
+              >
+                <Text style={styles.actionBtnText}>COPY_URL</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.actionBtn, { backgroundColor: '#222' }]} 
+                onPress={() => setIsSharing(false)}
+              >
+                <Text style={styles.actionBtnText}>CLOSE</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      )}
     </View>
   );
 }
@@ -175,4 +214,14 @@ const styles = StyleSheet.create({
   controlText: { color: '#888', fontSize: 9, fontWeight: 'bold' },
   valueText: { color: '#007AFF', fontSize: 10, fontWeight: 'bold' },
   slider: { width: '100%', height: 30 },
+  
+  // Modal Styles
+  shareOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.9)', justifyContent: 'center', alignItems: 'center', zIndex: 1000 },
+  shareModal: { width: 300, backgroundColor: '#0A0A0A', padding: 25, borderRadius: 12, borderWidth: 1, borderColor: '#007AFF', alignItems: 'center' },
+  modalHeader: { color: '#007AFF', fontSize: 10, fontWeight: '900', letterSpacing: 2, marginBottom: 20 },
+  qrWrapper: { padding: 10, backgroundColor: '#FFF', borderRadius: 8, marginBottom: 20 },
+  linkDisplay: { color: '#555', fontSize: 11, marginBottom: 20, textAlign: 'center' },
+  modalActions: { flexDirection: 'row', gap: 10 },
+  actionBtn: { backgroundColor: '#007AFF', paddingHorizontal: 20, paddingVertical: 10, borderRadius: 4 },
+  actionBtnText: { color: '#FFF', fontSize: 10, fontWeight: '900' }
 });
