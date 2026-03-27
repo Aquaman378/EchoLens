@@ -1,37 +1,106 @@
 import { StyleSheet, Platform } from 'react-native';
 
-export const LabStyles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#0A0A0A', height: Platform.OS === 'web' ? '100vh' : '100%' },
-    header: { height: 70, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, borderBottomWidth: 1, borderBottomColor: '#222' },
-    headerTitle: { color: '#007AFF', fontWeight: '900', letterSpacing: 2 },
-    backText: { color: '#444', fontSize: 10, fontWeight: 'bold' },
-    saveBtn: { backgroundColor: '#007AFF', paddingHorizontal: 15, paddingVertical: 8, borderRadius: 5 },
-    saveBtnText: { color: '#fff', fontSize: 10, fontWeight: '900' },
-    scrollView: { flex: 1 },
-    scrollContent: { padding: 20, paddingBottom: 150 },
-    wrapper: { width: '100%', maxWidth: 1100, alignSelf: 'center', gap: 20 },
-    card: { backgroundColor: '#141414', padding: 20, borderRadius: 12, borderWidth: 1, borderColor: '#222' },
-    cardHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 15 },
-    cardLabel: { color: '#444', fontSize: 10, fontWeight: 'bold' },
-    resetText: { color: '#FF3B30', fontSize: 9, fontWeight: 'bold' },
-    visualizer: { width: '100%', aspectRatio: 4 / 3, backgroundColor: '#000', borderRadius: 8, justifyContent: 'center', alignItems: 'center', overflow: 'hidden' },
-    img: { width: '100%', height: '100%', resizeMode: 'contain' },
-    placeholder: { color: '#007AFF', fontSize: 10, fontWeight: 'bold' },
-    sliderRow: { marginVertical: 8 },
-    labelRow: { flexDirection: 'row', justifyContent: 'space-between' },
-    controlText: { color: '#888', fontSize: 9, fontWeight: 'bold' },
-    valueText: { color: '#007AFF', fontSize: 10, fontWeight: 'bold' },
-    slider: { width: '100%', height: 30 },
+export const LabScreenStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#0A0A0A',
+  },
 
-    // Modal Styles
-    shareOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.9)', justifyContent: 'center', alignItems: 'center', zIndex: 1000 },
-    shareModal: { width: 300, backgroundColor: '#0A0A0A', padding: 25, borderRadius: 12, borderWidth: 1, borderColor: '#007AFF', alignItems: 'center' },
-    modalHeader: { color: '#007AFF', fontSize: 10, fontWeight: '900', letterSpacing: 2, marginBottom: 20 },
-    qrWrapper: { padding: 10, backgroundColor: '#FFF', borderRadius: 8, marginBottom: 20 },
-    linkDisplay: { color: '#555', fontSize: 11, marginBottom: 20, textAlign: 'center' },
-    modalActions: { flexDirection: 'row', gap: 10 },
-    actionBtn: { backgroundColor: '#007AFF', paddingHorizontal: 20, paddingVertical: 10, borderRadius: 4 },
-    actionBtnText: { color: '#FFF', fontSize: 10, fontWeight: '900' },
+  header: {
+    height: 60,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+  },
+
+  back: {
+    color: '#007AFF',
+    fontSize: 18,
+  },
+
+  title: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 16,
+  },
+
+  reset: {
+    color: '#FF3B30',
+    fontSize: 12,
+  },
+
+  imageContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  imageBox: {
+    width: '90%',
+    height: '80%',
+    backgroundColor: '#111',
+    AspectRatio: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  image: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
+  },
+
+  placeholder: {
+    color: '#555',
+  },
+
+  sliderStrip: {
+    height: 120,
+    paddingVertical: 10,
+  },
+
+  sliderCard: {
+    width: 200,
+    marginHorizontal: 10,
+    backgroundColor: '#141414',
+    borderRadius: 12,
+    padding: 10,
+    alignItems: 'center',
+  },
+
+  sliderLabel: {
+    color: '#aaa',
+    marginBottom: 5,
+  },
+
+  sliderValue: {
+    color: '#007AFF',
+    marginTop: 5,
+  },
+
+  dock: {
+    height: 80,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderTopColor: '#222',
+  },
+
+  button: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#007AFF',
+  },
+
+  buttonText: {
+    color: '#007AFF',
+    fontWeight: '600',
+  },
+
 });
 
 export const HomeScreenStyles = StyleSheet.create({
@@ -139,7 +208,7 @@ export const HomeScreenStyles = StyleSheet.create({
     protocolTitle: { color: '#007AFF', fontSize: 15, fontWeight: '900', marginBottom: 12, letterSpacing: 1 },
     protocolDesc: { color: '#777', fontSize: 13, lineHeight: 22 },
 
-    footer: { padding: 60, alignItems: 'center', borderTopWidth: 1, borderTopColor: '#111' },
+    footer: { padding: 10, alignItems: 'center', borderTopWidth: 1, borderTopColor: '#111' },
     footerText: { color: '#333', fontSize: 11, fontWeight: 'bold', letterSpacing: 2 },
     sectionContainer: { padding: 15, paddingHorizontal: 40 },
     sectionTitle: { color: '#333', fontSize: 11, fontWeight: '900', letterSpacing: 4, marginBottom: 30 },
@@ -150,3 +219,111 @@ export const HomeScreenStyles = StyleSheet.create({
     cardDescription: { color: '#777', fontSize: 13, lineHeight: 22 },
 
 });
+
+export const MiniChatStyles = StyleSheet.create({
+  // ... Keep your existing styles, but add these:
+  welcomeText: { textAlign: 'center', color: '#bbb', marginTop: 20, fontSize: 13 },
+  fabIcon: { color: 'white', fontSize: 28 },
+  fab: {
+    position: 'absolute',
+    right: 20,
+    bottom: 30,
+    backgroundColor: '#007AFF',
+    width: 65,
+    height: 65,
+    borderRadius: 33,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+  },
+  chatOverlay: {
+    position: 'absolute',
+    bottom: 110,
+    right: 20,
+    width: 320,
+    height: 450,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#eee',
+    elevation: 20,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    overflow: 'hidden',
+  },
+  bubble: { padding: 12, borderRadius: 15, marginBottom: 10, maxWidth: '85%' },
+  userBubble: { alignSelf: 'flex-end', backgroundColor: '#007AFF' },
+  aiBubble: { alignSelf: 'flex-start', backgroundColor: '#f0f0f0' },
+  chatHeader: { backgroundColor: '#007AFF', padding: 15, flexDirection: 'row', justifyContent: 'space-between' },
+  chatHeaderText: { color: 'white', fontWeight: 'bold', fontSize: 16 },
+  chatBox: { flex: 1, padding: 15 },
+  inputArea: { padding: 15, borderTopWidth: 1, borderTopColor: '#f0f0f0' },
+  input: { backgroundColor: '#f9f9f9', borderRadius: 25, paddingHorizontal: 15, height: 45, borderWidth: 1, borderColor: '#ddd' },
+  loadingText: { textAlign: 'center', color: '#888', fontStyle: 'italic', marginBottom: 10 },
+});
+
+export const UiSuppleStyles = {
+  container: {
+    height: 140,
+    borderTopWidth: 1,
+    borderTopColor: '#222',
+    paddingTop: 10,
+  },
+
+  topBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 15,
+    marginBottom: 5,
+  },
+
+  title: {
+    color: '#aaa',
+    fontSize: 13,
+    fontWeight: '600',
+  },
+
+  reset: {
+    color: '#FF3B30',
+    fontSize: 12,
+  },
+
+  sliderList: {
+    paddingHorizontal: 10,
+  },
+
+  sliderCard: {
+    width: 180,
+    marginHorizontal: 8,
+    backgroundColor: '#141414',
+    borderRadius: 14,
+    padding: 10,
+  },
+
+  sliderHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 5,
+  },
+
+  label: {
+    color: '#888',
+    fontSize: 11,
+  },
+
+  value: {
+    color: '#007AFF',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+
+  slider: {
+    width: '100%',
+    height: 30,
+  },
+};

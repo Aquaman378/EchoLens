@@ -6,140 +6,170 @@ import {
   TouchableOpacity,
   SafeAreaView,
   Image,
-  Alert,
-  Platform,
+  StyleSheet,
   useWindowDimensions,
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  Platform,
+  
 } from 'react-native';
 
 import Slider from '@react-native-community/slider';
+import UiSupple from '../components/UiSupple';
 import * as ImagePicker from 'expo-image-picker';
+import { LabScreenStyles } from '../components/styles';
 
-// Import the style object you created
-import { LabStyles } from '../components/styles';
 
 export default function LabScreen({ navigation }) {
   const { width } = useWindowDimensions();
-  const isDesktop = width > 800;
 
-  // 1. Unified State
   const [image, setImage] = useState(null);
-  const [isSharing, setIsSharing] = useState(false);
-  const [generatedLink, setGeneratedLink] = useState('');
-  
-  const initialSettings = {
-    exposure: 0,
-    contrast: 0,
+  const [loading, setLoading] = useState(false);
+
+  const [settings, setSettings] = useState({
     brightness: 0,
+    contrast: 0,
     saturation: 0,
-    warmth: 0,
-    tint: 0,
     blur: 0,
-    grayscale: 0,
-    invert: 0,
+  });
+
+  const sliders = [
+    { key: 'brightness', label: 'Brightness', min: -100, max: 100 },
+    { key: 'contrast', label: 'Contrast', min: -100, max: 100 },
+    { key: 'saturation', label: 'Saturation', min: -100, max: 100 },
+    { key: 'blur', label: 'Blur', min: 0, max: 20 },
+  ];
+
+  const updateSetting = (key, val) => {
+    setSettings(prev => ({ ...prev, [key]: val }));
   };
 
-  const [settings, setSettings] = useState(initialSettings);
-
-  // 2. Helper Functions
-  const updateSetting = (key, val) => setSettings(prev => ({ ...prev, [key]: val }));
-  const resetSettings = () => setSettings(initialSettings);
+  const resetSettings = () => {
+    setSettings({
+      brightness: 0,
+      contrast: 0,
+      saturation: 0,
+      blur: 0,
+    });
+  };
 
   const pickImage = async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== 'granted') {
-      alert("Camera access is required.");
-      return;
-    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      quality: 1,
+    });
 
-    try {
-      let result = await ImagePicker.launchCameraAsync({
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 1,
-      });
-
-      if (!result.canceled) {
-        setImage(result.assets[0].uri);
-      }
-    } catch (error) {
-      // Fallback for browsers that don't support direct camera launch
-      let libraryResult = await ImagePicker.launchImageLibraryAsync({
-        quality: 1,
-      });
-      if (!libraryResult.canceled) {
-        setImage(libraryResult.assets[0].uri);
-      }
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
     }
   };
 
-  const getFilterValues = () => {
-    const b = 1 + (settings.brightness / 100) + (settings.exposure / 100);
-    const c = 1 + (settings.contrast / 100);
-    const s = 1 + (settings.saturation / 100);
-    const blurPx = settings.blur;
-    return `brightness(${b}) contrast(${c}) saturate(${s}) sepia(${settings.warmth / 100}) hue-rotate(${settings.tint}deg) grayscale(${settings.grayscale / 100}) invert(${settings.invert / 100}) blur(${blurPx}px)`;
+  const handleAnalyze = () => {
+    if (!image) return Alert.alert("No Image");
+
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      Alert.alert("Analysis Complete", "Object detected.");
+    }, 1500);
   };
 
-  const generateFilterString = () => {
-    if (Platform.OS !== 'web' || !image) return {};
-    const filters = getFilterValues();
-    return { filter: filters, WebkitFilter: filters };
+  const getFilterStyle = () => {
+    if (Platform.OS === 'web') {
+      const b = 1 + settings.brightness / 100;
+      const c = 1 + settings.contrast / 100;
+      const s = 1 + settings.saturation / 100;
+
+      const filters = `
+      brightness(${b})
+      contrast(${c})
+      saturate(${s})
+      blur(${settings.blur}px)
+    `;
+
+      return {
+        filter: filters,
+        WebkitFilter: filters,
+      };
+    }
+
+    // Mobile fallback (limited support)
+    return {};
   };
 
-  const renderSlider = (label, key, min, max, step = 1) => (
-    <View style={LabStyles.sliderRow} key={key}>
-      <View style={LabStyles.labelRow}>
-        <Text style={LabStyles.controlText}>{label.toUpperCase()}</Text>
-        <Text style={LabStyles.valueText}>{settings[key].toFixed(0)}</Text>
-      </View>
+  const renderSlider = ({ item }) => (
+    <View style={LabScreenStyles.sliderCard}>
+      <Text style={LabScreenStyles.sliderLabel}>{item.label}</Text>
+
       <Slider
-        style={LabStyles.slider}
-        minimumValue={min}
-        maximumValue={max}
-        step={step}
-        value={settings[key]}
-        onValueChange={(v) => updateSetting(key, v)}
+        style={{ width: 180 }}
+        minimumValue={item.min}
+        maximumValue={item.max}
+        value={settings[item.key]}
+        onValueChange={(v) => updateSetting(item.key, v)}
         minimumTrackTintColor="#007AFF"
         maximumTrackTintColor="#333"
         thumbTintColor="#007AFF"
       />
+
+      <Text style={LabScreenStyles.sliderValue}>
+        {settings[item.key].toFixed(0)}
+      </Text>
     </View>
   );
 
   return (
-    <SafeAreaView style={LabStyles.container}>
-      <View style={LabStyles.header}>
+    <SafeAreaView style={LabScreenStyles.container}>
+
+      {/* HEADER */}
+      <View style={LabScreenStyles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={LabStyles.backText}>← EXIT_LAB</Text>
+          <Text style={LabScreenStyles.back}>←</Text>
         </TouchableOpacity>
-        <Text style={LabStyles.headerTitle}>LABORATORY_01</Text>
+
+        <Text style={LabScreenStyles.title}>EDITOR</Text>
+
+        <TouchableOpacity onPress={resetSettings}>
+          <Text style={LabScreenStyles.reset}>RESET</Text>
+        </TouchableOpacity>
       </View>
 
-      <ScrollView contentContainerStyle={LabStyles.scrollContent}>
-        <View style={LabStyles.card}>
-          <Text style={LabStyles.cardLabel}>PRIMARY_VISUALIZER</Text>
-          <TouchableOpacity onPress={pickImage} style={LabStyles.visualizer}>
-            {image ? (
-              <Image source={{ uri: image }} style={[LabStyles.img, generateFilterString()]} />
-            ) : (
-              <Text style={LabStyles.placeholder}>[ TAP_TO_ACTIVATE_CAMERA ]</Text>
-            )}
-          </TouchableOpacity>
-        </View>
+      {/* IMAGE AREA */}
+      <View style={LabScreenStyles.imageContainer}>
+        <TouchableOpacity onPress={pickImage} style={LabScreenStyles.imageBox}>
+          {image ? (
+            <Image source={{ uri: image }} style={[LabScreenStyles.image, getFilterStyle()]} />
+          ) : (
+            <Text style={LabScreenStyles.placeholder}>Tap to select image</Text>
+          )}
+        </TouchableOpacity>
+      </View>
 
-        <View style={LabStyles.card}>
-          <View style={LabStyles.cardHeader}>
-            <Text style={LabStyles.cardLabel}>ADJUSTMENTS</Text>
-            <TouchableOpacity onPress={resetSettings}>
-              <Text style={LabStyles.resetText}>RESET</Text>
-            </TouchableOpacity>
-          </View>
-          {renderSlider("Exposure", "exposure", -100, 100)}
-          {renderSlider("Contrast", "contrast", -100, 100)}
-          {renderSlider("Brightness", "brightness", -100, 100)}
-          {renderSlider("Blur", "blur", 0, 20)}
-        </View>
-      </ScrollView>
+      {/* SLIDER STRIP (Instagram style) */}
+      <UiSupple
+        settings={settings}
+        updateSetting={updateSetting}
+        resetSettings={resetSettings}
+      />
+
+      {/* DOCK */}
+      <View style={LabScreenStyles.dock}>
+        <TouchableOpacity style={LabScreenStyles.button} onPress={pickImage}>
+          <Text style={LabScreenStyles.buttonText}>IMAGE</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={LabScreenStyles.button} onPress={handleAnalyze}>
+          {loading ? (
+            <ActivityIndicator color="#007AFF" />
+          ) : (
+            <Text style={LabScreenStyles.buttonText}>ANALYZE</Text>
+          )}
+        </TouchableOpacity>
+
+        <TouchableOpacity style={LabScreenStyles.button} onPress={resetSettings}>
+          <Text style={LabScreenStyles.buttonText}>RESET</Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 }

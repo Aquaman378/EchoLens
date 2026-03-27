@@ -1,8 +1,10 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, TextInput, ScrollView, TouchableOpacity, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
-import { askGemini } from '../services/gemini'; 
-
-export default function MiniChat() {
+import { View, Text, TextInput, ScrollView, TouchableOpacity, KeyboardAvoidingView, Platform, StyleSheet, Alert } from 'react-native';
+import * as FileSystem from 'expo-file-system'; // Need this for Base64 conversion
+import { askGemini } from '../services/gemini';
+import { MiniChatStyles as styles } from './styles';
+// Pass 'image' as a prop from your LabScreen
+export default function MiniChat({ image }) {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
   const [chatHistory, setChatHistory] = useState([]);
@@ -12,6 +14,7 @@ export default function MiniChat() {
   const handleTask = async () => {
     if (!input.trim()) return;
 
+    // 1. Add User Message to UI
     const userMsg = { id: Date.now().toString(), role: 'user', text: input };
     setChatHistory((prev) => [...prev, userMsg]);
 
@@ -19,12 +22,24 @@ export default function MiniChat() {
     setInput('');
     setLoading(true);
 
+    const [cachedBase64, setCachedBase64] = useState(null);
+
     try {
-      const result = await askGemini(currentInput);
+      let imageBase64 = null;
+
+      if (image) {
+        imageBase64 = await FileSystem.readAsStringAsync(image, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+      }
+
+      // 3. Send both text and image to Gemini
+      const result = await askGemini(currentInput, imageBase64);
+
       const aiMsg = { id: (Date.now() + 1).toString(), role: 'ai', text: result };
       setChatHistory((prev) => [...prev, aiMsg]);
     } catch (err) {
-      alert('Error: ' + err.message);
+      Alert.alert('Chat Error', err.message);
     } finally {
       setLoading(false);
     }
@@ -32,14 +47,16 @@ export default function MiniChat() {
 
   return (
     <>
-      {/* 1. THE CHAT WINDOW */}
       {isOpen && (
-        <KeyboardAvoidingView 
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={styles.chatOverlay}
         >
           <View style={styles.chatHeader}>
-            <Text style={styles.chatHeaderText}>Assistant</Text>
+            <View>
+              <Text style={styles.chatHeaderText}>AI Lab Assistant</Text>
+              {image && <Text style={{ color: '#ADFF2F', fontSize: 10 }}>● Analyzing active image</Text>}
+            </View>
             <TouchableOpacity onPress={() => setIsOpen(false)}>
               <Text style={{ color: 'white', fontWeight: 'bold' }}>Close</Text>
             </TouchableOpacity>
@@ -50,6 +67,11 @@ export default function MiniChat() {
             onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
             style={styles.chatBox}
           >
+            {chatHistory.length === 0 && (
+              <Text style={styles.welcomeText}>
+                Ask me to describe the photo or suggest edits!
+              </Text>
+            )}
             {chatHistory.map((item) => (
               <View
                 key={item.id}
@@ -60,13 +82,13 @@ export default function MiniChat() {
                 </Text>
               </View>
             ))}
-            {loading && <Text style={styles.loadingText}>AI is thinking...</Text>}
+            {loading && <Text style={styles.loadingText}>Gemini is looking...</Text>}
           </ScrollView>
 
           <View style={styles.inputArea}>
             <TextInput
               style={styles.input}
-              placeholder="Type here..."
+              placeholder="Ask about this photo..."
               value={input}
               onChangeText={setInput}
               onSubmitEditing={handleTask}
@@ -76,60 +98,15 @@ export default function MiniChat() {
         </KeyboardAvoidingView>
       )}
 
-      {/* 2. THE BUTTON */}
-      <TouchableOpacity 
-        style={styles.fab} 
+      <TouchableOpacity
+        style={[styles.fab, image ? { backgroundColor: '#00FF99' } : {}]}
         onPress={() => setIsOpen(!isOpen)}
         activeOpacity={0.8}
       >
-        <Text style={styles.fabIcon}>{isOpen ? "✕" : "💬"}</Text>
+        <Text style={[styles.fabIcon, image ? { color: '#000' } : {}]}>
+          {isOpen ? "✕" : "🤖"}
+        </Text>
       </TouchableOpacity>
     </>
   );
 }
-
-// Your styles are perfect as they are! 
-const styles = StyleSheet.create({
-  fabIcon: { color: 'white', fontSize: 28 },
-  fab: {
-    position: 'absolute',
-    right: 20,
-    bottom: 30,
-    backgroundColor: '#007AFF',
-    width: 65,
-    height: 65,
-    borderRadius: 33,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-  },
-  chatOverlay: {
-    position: 'absolute',
-    bottom: 110,
-    right: 20,
-    width: 320,
-    height: 450,
-    backgroundColor: 'white',
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#eee',
-    elevation: 20,
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-    overflow: 'hidden',
-  },
-  bubble: { padding: 12, borderRadius: 15, marginBottom: 10, maxWidth: '85%' },
-  userBubble: { alignSelf: 'flex-end', backgroundColor: '#007AFF' },
-  aiBubble: { alignSelf: 'flex-start', backgroundColor: '#f0f0f0' },
-  chatHeader: { backgroundColor: '#007AFF', padding: 15, flexDirection: 'row', justifyContent: 'space-between' },
-  chatHeaderText: { color: 'white', fontWeight: 'bold', fontSize: 16 },
-  chatBox: { flex: 1, padding: 15 },
-  inputArea: { padding: 15, borderTopWidth: 1, borderTopColor: '#f0f0f0' },
-  input: { backgroundColor: '#f9f9f9', borderRadius: 25, paddingHorizontal: 15, height: 45, borderWidth: 1, borderColor: '#ddd' },
-  loadingText: { textAlign: 'center', color: '#888', fontStyle: 'italic', marginBottom: 10 },
-});
