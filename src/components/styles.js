@@ -1,222 +1,161 @@
 import { StyleSheet, Platform } from 'react-native';
 
 export const LabScreenStyles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#0A0A0A',
+  proContainer: { flex: 1, backgroundColor: '#000' },
+  proHeader: { 
+    height: 50, 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'center', 
+    paddingHorizontal: 20, 
+    backgroundColor: '#1A1A1A',
+    borderBottomWidth: 1,
+    borderColor: '#333'
   },
+  proTitle: { color: '#FFF', letterSpacing: 2, fontSize: 12, fontWeight: '900' },
+  exportBtn: { color: '#007AFF', fontWeight: 'bold', fontSize: 11 },
+  
+  proMainLayout: { flex: 1, flexDirection: 'row' },
+  
+  // Left Bar
+  proToolbar: { width: 50, backgroundColor: '#1A1A1A', alignItems: 'center', paddingTop: 20 },
+  toolIcon: { width: 35, height: 35, marginBottom: 15, justifyContent: 'center', alignItems: 'center', borderRadius: 4 },
+  toolActive: { backgroundColor: '#333', borderWidth: 1, borderColor: '#007AFF' },
 
-  header: {
-    height: 60,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-  },
+  // Center
+  proCanvas: { flex: 1, backgroundColor: '#090909', padding: 40, justifyContent: 'center' },
+  proImageBox: { width: '100%', height: '100%', borderStyle: 'dashed', borderWidth: 1, borderColor: '#333', justifyContent: 'center', alignItems: 'center' },
+  proImage: { width: '100%', height: '100%', resizeMode: 'contain' },
 
-  back: {
-    color: '#007AFF',
-    fontSize: 18,
-  },
-
-  title: {
-    color: '#fff',
-    fontWeight: '700',
-    fontSize: 16,
-  },
-
-  reset: {
-    color: '#FF3B30',
-    fontSize: 12,
-  },
-
-  imageContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-
-  imageBox: {
-    width: '90%',
-    height: '80%',
-    backgroundColor: '#111',
-    AspectRatio: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-
-  image: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'contain',
-  },
-
-  placeholder: {
-    color: '#555',
-  },
-
-  sliderStrip: {
-    height: 120,
-    paddingVertical: 10,
-  },
-
-  sliderCard: {
-    width: 200,
-    marginHorizontal: 10,
-    backgroundColor: '#141414',
-    borderRadius: 12,
-    padding: 10,
-    alignItems: 'center',
-  },
-
-  sliderLabel: {
-    color: '#aaa',
-    marginBottom: 5,
-  },
-
-  sliderValue: {
-    color: '#007AFF',
-    marginTop: 5,
-  },
-
-  dock: {
-    height: 80,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    borderTopWidth: 1,
-    borderTopColor: '#222',
-  },
-
-  button: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#007AFF',
-  },
-
-  buttonText: {
-    color: '#007AFF',
-    fontWeight: '600',
-  },
-
+  // Right Side
+  proInspector: { width: 250, backgroundColor: '#1A1A1A', borderLeftWidth: 1, borderColor: '#333', padding: 20 },
+  panelTitle: { color: '#888', fontSize: 10, fontWeight: 'bold', marginBottom: 20, letterSpacing: 2 },
+  proSliderRow: { marginBottom: 25 },
+  proLabel: { color: '#EEE', fontSize: 9, marginBottom: 5, fontWeight: '600' }
 });
 
+
 export const HomeScreenStyles = StyleSheet.create({
-    wrapper: { width: '100%', maxWidth: 1200, alignSelf: 'center' },
-    mainContainer: { flex: 1, backgroundColor: '#020204' },
-    websiteContent: { flex: 1 },
+  wrapper: {
+    width: '100%',
+    alignSelf: 'center',
+    minHeight: '100%', // Changed from height to minHeight
+    
+  }, 
+  mainContainer: { flex: 1, backgroundColor: '#020204' },
+  websiteContent: { flex: 1 },
 
-    // Navbar
-    navbar: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: 20,
-        backgroundColor: 'rgba(5, 5, 10, 0.95)',
-        borderBottomWidth: 1,
-        borderBottomColor: '#1A1A2E',
-    },
-    navLogo: { fontSize: 16, fontWeight: '900', color: '#FFF', letterSpacing: 3 },
-    brandBlue: { color: '#007AFF' },
-    statusPill: { 
-        flexDirection: 'row', 
-        alignItems: 'center', 
-        backgroundColor: '#00FF4115', 
-        paddingHorizontal: 12, 
-        paddingVertical: 6, 
-        borderRadius: 20,
-        borderWidth: 1,
-        borderColor: '#00FF4133'
-    },
-    onlineDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#00FF41', marginRight: 8 },
-    statusText: { color: '#00FF41', fontSize: 9, fontWeight: '900' },
+  // Navbar
+  navbar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: 'rgba(5, 5, 10, 0.95)',
+    borderBottomWidth: 1,
+    borderBottomColor: '#1A1A2E',
+    zIndex: 1000, // Ensures it stays ABOVE the cards as they slide under
+    elevation: 5, // For Android shadow support
+  },
+  navLogo: { fontSize: 16, fontWeight: '900', color: '#FFF', letterSpacing: 3 },
+  brandBlue: { color: '#007AFF' },
+  statusPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#00FF4115',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#00FF4133'
+  },
+  onlineDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#00FF41', marginRight: 8 },
+  statusText: { color: '#00FF41', fontSize: 9, fontWeight: '900' },
 
-    // Hero
-    heroSection: {
-        paddingVertical: 100,
-        paddingHorizontal: 20,
-        alignItems: 'center',
-        backgroundColor: '#05050A',
-        overflow: 'hidden',
-    },
-    accentGlow: {
-        position: 'absolute',
-        top: -100,
-        width: 400,
-        height: 400,
-        backgroundColor: '#007AFF15',
-        borderRadius: 200,
-        filter: Platform.OS === 'web' ? 'blur(80px)' : 'none',
-    },
-    webTitle: { fontSize: 48, fontWeight: '900', color: '#FFF', textAlign: 'center', letterSpacing: -1 },
-    heroSubText: { color: '#007AFF', fontSize: 10, fontWeight: 'bold', letterSpacing: 4, marginTop: 10 },
-    webBody: { 
-        fontSize: 15, 
-        color: '#8E8E93', 
-        textAlign: 'center', 
-        marginTop: 25, 
-        maxWidth: 600,
-        lineHeight: 24 
-    },
-    ctaButton: {
-        marginTop: 50,
-        backgroundColor: '#007AFF',
-        paddingHorizontal: 40,
-        paddingVertical: 20,
-        borderRadius: 4,
-        shadowColor: '#007AFF',
-        shadowOpacity: 0.5,
-        shadowRadius: 20,
-    },
-    ctaText: { color: '#FFF', fontWeight: '900', fontSize: 13, letterSpacing: 2 },
+  // Hero
+  heroSection: {
+    paddingVertical: 100,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    backgroundColor: '#05050A',
+    overflow: 'hidden',
+  },
+  accentGlow: {
+    position: 'absolute',
+    top: -100,
+    width: 400,
+    height: 400,
+    backgroundColor: '#007AFF15',
+    borderRadius: 200,
+    filter: Platform.OS === 'web' ? 'blur(80px)' : 'none',
+  },
+  webTitle: { fontSize: 48, fontWeight: '900', color: '#FFF', textAlign: 'center', letterSpacing: -1 },
+  heroSubText: { color: '#007AFF', fontSize: 10, fontWeight: 'bold', letterSpacing: 4, marginTop: 10 },
+  webBody: {
+    fontSize: 15,
+    color: '#8E8E93',
+    textAlign: 'center',
+    marginTop: 25,
+    maxWidth: 600,
+    lineHeight: 24
+  },
+  ctaButton: {
+    marginTop: 50,
+    backgroundColor: '#007AFF',
+    paddingHorizontal: 40,
+    paddingVertical: 20,
+    borderRadius: 4,
+    shadowColor: '#007AFF',
+    shadowOpacity: 0.5,
+    shadowRadius: 20,
+  },
+  ctaText: { color: '#FFF', fontWeight: '900', fontSize: 13, letterSpacing: 2 },
 
-    // Colorful Stats Bar
-    statsBar: {
-        flexDirection: 'row',
-        backgroundColor: '#0A0A10',
-        borderTopWidth: 1,
-        borderBottomWidth: 1,
-        borderColor: '#1A1A2E',
-        paddingVertical: 30,
-    },
-    statItem: { flex: 1, alignItems: 'center' },
-    statBorder: { borderLeftWidth: 1, borderRightWidth: 1, borderColor: '#1A1A2E' },
-    statValue: { fontSize: 24, fontWeight: '900' },
-    statLabel: { color: '#444', fontSize: 10, fontWeight: 'bold', marginTop: 6, letterSpacing: 1 },
+  // Colorful Stats Bar
+  statsBar: {
+    flexDirection: 'row',
+    backgroundColor: '#0A0A10',
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: '#1A1A2E',
+    paddingVertical: 30,
+  },
+  statItem: { flex: 1, alignItems: 'center' },
+  statBorder: { borderLeftWidth: 1, borderRightWidth: 1, borderColor: '#1A1A2E' },
+  statValue: { fontSize: 24, fontWeight: '900' },
+  statLabel: { color: '#444', fontSize: 10, fontWeight: 'bold', marginTop: 6, letterSpacing: 1 },
 
-    // Protocols
-    sectionContainer: { padding: 40 },
-    sectionHeader: { color: '#333', fontSize: 11, fontWeight: '900', letterSpacing: 4, marginBottom: 30 },
-    protocolRow: { gap: 20 },
-    protocolCard: { 
-        backgroundColor: '#0D0D15', 
-        padding: 30, 
-        borderRadius: 8, 
-        borderWidth: 1,
-        position: 'relative',
-        overflow: 'hidden'
-    },
-    colorBar: {
-        position: 'absolute',
-        left: 0,
-        top: 0,
-        bottom: 0,
-        width: 4,
-    },
-    protocolTitle: { color: '#007AFF', fontSize: 15, fontWeight: '900', marginBottom: 12, letterSpacing: 1 },
-    protocolDesc: { color: '#777', fontSize: 13, lineHeight: 22 },
+  // Protocols
+  sectionContainer: { padding: 40 },
+  sectionHeader: { color: '#333', fontSize: 11, fontWeight: '900', letterSpacing: 4, marginBottom: 30 },
+  protocolRow: { gap: 20 },
+  protocolCard: {
+    backgroundColor: '#0D0D15',
+    padding: 30,
+    borderRadius: 8,
+    borderWidth: 1,
+    position: 'relative',
+    overflow: 'hidden'
+  },
+  colorBar: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 4,
+  },
+  protocolTitle: { color: '#007AFF', fontSize: 15, fontWeight: '900', marginBottom: 12, letterSpacing: 1 },
+  protocolDesc: { color: '#777', fontSize: 13, lineHeight: 22 },
 
-    footer: { padding: 10, alignItems: 'center', borderTopWidth: 1, borderTopColor: '#111' },
-    footerText: { color: '#333', fontSize: 11, fontWeight: 'bold', letterSpacing: 2 },
-    sectionContainer: { padding: 15, paddingHorizontal: 40 },
-    sectionTitle: { color: '#333', fontSize: 11, fontWeight: '900', letterSpacing: 4, marginBottom: 30 },
-    featureCard: { backgroundColor: '#0D0D15', padding: 30, borderRadius: 8, borderWidth: 1, borderColor: '#222', flexDirection: 'row', gap: 20 },  
-    cardImage: { width: 120, height: 80, borderRadius: 4, backgroundColor: '#222' },
-    cardContent: { flex: 1 },
-    cardTitle: { color: '#007AFF', fontSize: 15, fontWeight: '900', marginBottom: 12, letterSpacing: 1 },
-    cardDescription: { color: '#777', fontSize: 13, lineHeight: 22 },
+  footer: { padding: 10, alignItems: 'center', borderTopWidth: 1, borderTopColor: '#111' },
+  footerText: { color: '#333', fontSize: 11, fontWeight: 'bold', letterSpacing: 2 },
+  sectionContainer: { padding: 15, paddingHorizontal: 40 },
+  sectionTitle: { color: '#333', fontSize: 11, fontWeight: '900', letterSpacing: 4, marginBottom: 30 },
+  featureCard: { backgroundColor: '#0D0D15', padding: 30, borderRadius: 8, borderWidth: 1, borderColor: '#222', flexDirection: 'row', gap: 20 },
+  cardImage: { width: 120, height: 80, borderRadius: 4, backgroundColor: '#222' },
+  cardContent: { flex: 1 },
+  cardTitle: { color: '#007AFF', fontSize: 15, fontWeight: '900', marginBottom: 12, letterSpacing: 1 },
+  cardDescription: { color: '#777', fontSize: 13, lineHeight: 22 },
 
 });
 
@@ -327,3 +266,50 @@ export const UiSuppleStyles = {
     height: 30,
   },
 };
+const BlueprintScreenStyles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#050505' }, // True Black for pro-look
+  header: {
+    height: 70,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 25,
+    borderBottomWidth: 1,
+    borderColor: '#1A1A1A',
+  },
+  brand: { color: '#FFF', letterSpacing: 5, fontSize: 10, fontWeight: '200' },
+  backBtn: { color: '#888', fontSize: 10, fontWeight: 'bold' },
+  shareBtn: { color: '#007AFF', fontSize: 10, fontWeight: 'bold' },
+  
+  listContent: { padding: 20 },
+  row: { justifyContent: 'space-between' },
+  
+  card: {
+    width: '48%',
+    marginBottom: 25,
+    backgroundColor: '#0A0A0A',
+    borderRadius: 4,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#1A1A1A'
+  },
+  imageFrame: {
+    width: '100%',
+    aspectRatio: 1, // Square grid
+    backgroundColor: '#111',
+  },
+  galleryImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  cardInfo: {
+    padding: 12,
+  },
+  filename: { color: '#EEE', fontSize: 9, fontWeight: '900', letterSpacing: 1 },
+  meta: { color: '#444', fontSize: 8, marginTop: 4, fontWeight: 'bold' },
+
+  emptyState: { marginTop: 100, alignItems: 'center' },
+  emptyText: { color: '#333', letterSpacing: 4, fontSize: 14, fontWeight: '900' },
+  emptySub: { color: '#222', fontSize: 10, marginTop: 10 }
+});

@@ -4,6 +4,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 import HomeScreen from '../screens/HomeScreen.js';
 import LabScreen from '../screens/LabScreen';
 import ArchiveScreen from '../screens/ArchiveScreen';
+import BlueprintScreen from '../screens/BlueprintScreen'
+
 
 const Stack = createStackNavigator();
 
@@ -19,6 +21,7 @@ export default function AppNavigator() {
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="Lab" component={LabScreen} />
       <Stack.Screen name="Archive" component={ArchiveScreen} />
+      <Stack.Screen name="Blueprint" component={BlueprintScreen} />
     </Stack.Navigator>
   );
 }
