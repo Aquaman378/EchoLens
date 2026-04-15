@@ -32,8 +32,6 @@ export default function HomeScreen({ navigation }) {
         }
     };
 
-
-
     return (
         <ScrollView stickyHeaderIndices={[0]} style={styles.websiteContent}>
             {/* 1. Sticky Navbar */}

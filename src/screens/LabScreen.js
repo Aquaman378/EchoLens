@@ -6,9 +6,8 @@ import {
 import Slider from '@react-native-community/slider';
 import * as ImagePicker from 'expo-image-picker';
 import { LabScreenStyles as styles } from '../components/styles';
+import { askGemini } from '../services/gemini';
 
-// Assets from your Icons folder (Notice the Capital 'I')
-// 1. Import Ionicons correctly
 import { Ionicons } from '@expo/vector-icons';
 
 export default function LabScreen({ navigation }) {
@@ -134,6 +133,29 @@ export default function LabScreen({ navigation }) {
               </>
             )}
           </ScrollView>
+          <TouchableOpacity
+            onPress={async () => {
+              if (!image) return alert("IMPORT AN ASSET FIRST");
+
+              try {
+                const analysis = await askGemini(
+                  "Extract metadata and describe this photo.",
+                  image
+                );
+
+                navigation.navigate("Blueprint", {
+                  photos: collection,
+                  analysis
+                });
+              } catch (err) {
+                console.log("ANALYZE ERROR:", err);
+                alert("AI failed: " + err.message);
+              }
+            }}
+          >
+            <Text>ANALYZE PHOTO</Text>
+          </TouchableOpacity>
+
         </View>
       </View>
     </SafeAreaView>

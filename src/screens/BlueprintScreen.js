@@ -5,14 +5,12 @@ import {
 } from 'react-native';
 
 export default function BlueprintScreen({ route, navigation }) {
-    <View style={{flex: 1, backgroundColor: 'blue', justifyContent: 'center', alignItems: 'center'}}>
-       <Text style={{color: 'white'}}>BLUEPRINT SCREEN LOADED</Text>
-    </View>
-  // Grab the photos array passed from LabScreen
-  const { photos } = route.params || { photos: [] };
+
+  // Grab the photos + analysis passed from LabScreen
+  const { photos = [], analysis = null } = route.params || {};
   const { width } = useWindowDimensions();
-  
-  // Calculate a 2-column grid with margins
+
+  // 2-column grid sizing
   const itemSize = (width - 60) / 2;
 
   const renderPhoto = ({ item }) => (
@@ -20,7 +18,7 @@ export default function BlueprintScreen({ route, navigation }) {
       <View style={styles.imageFrame}>
         <Image 
           source={{ uri: item.uri }} 
-          style={[styles.galleryImage, item.filters]} 
+          style={[styles.galleryImage, item.filterStyle]} 
         />
       </View>
       <View style={styles.cardInfo}>
@@ -32,16 +30,27 @@ export default function BlueprintScreen({ route, navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* MINIMALIST HEADER */}
+
+      {/* HEADER */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Text style={styles.backBtn}>← RETURN_TO_LAB</Text>
         </TouchableOpacity>
+
         <Text style={styles.brand}>BLUEPRINT_V1</Text>
+
         <TouchableOpacity>
           <Text style={styles.shareBtn}>SHARE_COLLECTION</Text>
         </TouchableOpacity>
       </View>
+
+      {/* OPTIONAL: AI METADATA PANEL */}
+      {analysis && (
+        <View style={styles.analysisBox}>
+          <Text style={styles.analysisTitle}>AI ANALYSIS</Text>
+          <Text style={styles.analysisText}>{analysis}</Text>
+        </View>
+      )}
 
       {/* GALLERY GRID */}
       <FlatList
@@ -54,10 +63,54 @@ export default function BlueprintScreen({ route, navigation }) {
         ListEmptyComponent={
           <View style={styles.emptyState}>
             <Text style={styles.emptyText}>NO_ASSETS_IN_BLUEPRINT</Text>
-            <Text style={styles.emptySub}>Collect edits in the Lab to populate this gallery.</Text>
+            <Text style={styles.emptySub}>
+              Collect edits in the Lab to populate this gallery.
+            </Text>
           </View>
         }
       />
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#000' },
+  header: {
+    padding: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  backBtn: { color: '#888', fontSize: 12 },
+  brand: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+  shareBtn: { color: '#007AFF', fontSize: 12 },
+
+  analysisBox: {
+    backgroundColor: '#111',
+    padding: 16,
+    marginHorizontal: 16,
+    marginBottom: 10,
+    borderRadius: 8
+  },
+  analysisTitle: { color: '#0f0', fontSize: 14, fontWeight: 'bold', marginBottom: 6 },
+  analysisText: { color: '#ccc', fontSize: 12, lineHeight: 18 },
+
+  row: { justifyContent: 'space-between', marginBottom: 20 },
+  listContent: { padding: 20 },
+
+  card: { width: '48%' },
+  imageFrame: {
+    backgroundColor: '#111',
+    borderRadius: 10,
+    overflow: 'hidden',
+    height: 180
+  },
+  galleryImage: { width: '100%', height: '100%' },
+  cardInfo: { marginTop: 6 },
+  filename: { color: '#fff', fontSize: 12 },
+  meta: { color: '#888', fontSize: 10 },
+
+  emptyState: { alignItems: 'center', marginTop: 80 },
+  emptyText: { color: '#555', fontSize: 14 },
+  emptySub: { color: '#777', fontSize: 12, marginTop: 4 }
+});

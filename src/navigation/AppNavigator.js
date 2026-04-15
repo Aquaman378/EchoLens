@@ -7,6 +7,7 @@ import ArchiveScreen from '../screens/ArchiveScreen';
 import BlueprintScreen from '../screens/BlueprintScreen'
 
 
+
 const Stack = createStackNavigator();
 
 export default function AppNavigator() {

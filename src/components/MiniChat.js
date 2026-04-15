@@ -1,9 +1,17 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, TextInput, ScrollView, TouchableOpacity, KeyboardAvoidingView, Platform, StyleSheet, Alert } from 'react-native';
-import * as FileSystem from 'expo-file-system'; // Need this for Base64 conversion
+import {
+  View,
+  Text,
+  TextInput,
+  ScrollView,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+  Alert,
+} from 'react-native';
 import { askGemini } from '../services/gemini';
 import { MiniChatStyles as styles } from './styles';
-// Pass 'image' as a prop from your LabScreen
+
 export default function MiniChat({ image }) {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
@@ -14,32 +22,30 @@ export default function MiniChat({ image }) {
   const handleTask = async () => {
     if (!input.trim()) return;
 
-    // 1. Add User Message to UI
-    const userMsg = { id: Date.now().toString(), role: 'user', text: input };
-    setChatHistory((prev) => [...prev, userMsg]);
+    // Add user message to chat
+    const userMsg = {
+      id: Date.now().toString(),
+      role: 'user',
+      text: input,
+    };
+    setChatHistory(prev => [...prev, userMsg]);
 
     const currentInput = input;
     setInput('');
     setLoading(true);
 
-    const [cachedBase64, setCachedBase64] = useState(null);
-
     try {
-      let imageBase64 = null;
-
-      if (image) {
-        imageBase64 = await FileSystem.readAsStringAsync(image, {
-          encoding: FileSystem.EncodingType.Base64,
-        });
-      }
-
-      // 3. Send both text and image to Gemini
+      // Send prompt + image URI (Gemini handles base64 internally)
       const result = await askGemini(currentInput, imageBase64);
 
-      const aiMsg = { id: (Date.now() + 1).toString(), role: 'ai', text: result };
-      setChatHistory((prev) => [...prev, aiMsg]);
+      const aiMsg = {
+        id: (Date.now() + 1).toString(),
+        role: 'ai',
+        text: result,
+      };
+      setChatHistory(prev => [...prev, aiMsg]);
     } catch (err) {
-      Alert.alert('Chat Error', err.message);
+      Alert.alert('Chat Error', err.message || 'Something went wrong.');
     } finally {
       setLoading(false);
     }
@@ -55,7 +61,11 @@ export default function MiniChat({ image }) {
           <View style={styles.chatHeader}>
             <View>
               <Text style={styles.chatHeaderText}>AI Lab Assistant</Text>
-              {image && <Text style={{ color: '#ADFF2F', fontSize: 10 }}>● Analyzing active image</Text>}
+              {image && (
+                <Text style={{ color: '#ADFF2F', fontSize: 10 }}>
+                  ● Analyzing active image
+                </Text>
+              )}
             </View>
             <TouchableOpacity onPress={() => setIsOpen(false)}>
               <Text style={{ color: 'white', fontWeight: 'bold' }}>Close</Text>
@@ -64,25 +74,40 @@ export default function MiniChat({ image }) {
 
           <ScrollView
             ref={scrollViewRef}
-            onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
+            onContentSizeChange={() =>
+              scrollViewRef.current?.scrollToEnd({ animated: true })
+            }
             style={styles.chatBox}
           >
             {chatHistory.length === 0 && (
               <Text style={styles.welcomeText}>
-                Ask me to describe the photo or suggest edits!
+                Ask me to describe the photo, extract metadata, or suggest edits.
               </Text>
             )}
-            {chatHistory.map((item) => (
+
+            {chatHistory.map(item => (
               <View
                 key={item.id}
-                style={[styles.bubble, item.role === 'user' ? styles.userBubble : styles.aiBubble]}
+                style={[
+                  styles.bubble,
+                  item.role === 'user' ? styles.userBubble : styles.aiBubble,
+                ]}
               >
-                <Text style={item.role === 'user' ? { color: '#fff' } : { color: '#000' }}>
+                <Text
+                  style={
+                    item.role === 'user'
+                      ? { color: '#fff' }
+                      : { color: '#000' }
+                  }
+                >
                   {item.text}
                 </Text>
               </View>
             ))}
-            {loading && <Text style={styles.loadingText}>Gemini is looking...</Text>}
+
+            {loading && (
+              <Text style={styles.loadingText}>Gemini is thinking…</Text>
+            )}
           </ScrollView>
 
           <View style={styles.inputArea}>
@@ -104,7 +129,7 @@ export default function MiniChat({ image }) {
         activeOpacity={0.8}
       >
         <Text style={[styles.fabIcon, image ? { color: '#000' } : {}]}>
-          {isOpen ? "✕" : "🤖"}
+          {isOpen ? '✕' : '🤖'}
         </Text>
       </TouchableOpacity>
     </>
