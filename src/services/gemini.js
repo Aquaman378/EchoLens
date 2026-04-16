@@ -14,7 +14,6 @@ async function uriToBase64(uri) {
       reader.readAsDataURL(blob);
     });
   }
-
   return await FileSystem.readAsStringAsync(uri, { encoding: "base64" });
 }
 
@@ -24,34 +23,42 @@ export async function askGemini(prompt, imageUri = null) {
   let imagePart = null;
 
   if (imageUri) {
-    const base64 = await uriToBase64(imageUri);
-
-    imagePart = {
-      inline_data: {
-        mime_type: "image/jpeg",
-        data: base64,
-      },
-    };
+    try {
+      const base64 = await uriToBase64(imageUri);
+      imagePart = {
+        inline_data: {
+          mime_type: "image/jpeg",
+          data: base64,
+        },
+      };
+    } catch (e) {
+      console.error("BASE64_CONVERSION_ERROR:", e);
+    }
   }
 
-  const response = await axios.post(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-    {
-      contents: [
+  try {
+    const response = await axios.post(
+      `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        contents: [
           {
-            role: "user",
             parts: [
+              // 1. Image Data First
               ...(imagePart ? [imagePart] : []),
+              // 2. Text Prompt Second
               {
-                text:
-                  "System: Use plain text and unicode math symbols only (±, √, ², ³, π, θ, ÷). Never use LaTeX. Answer this: " +
-                  prompt,
+                text: "System: Describe this photo's lighting and suggest professional edits. Answer this: " + prompt,
               },
             ],
           },
         ],
-    }
-  );
+      }
+    );
 
-  return response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    return response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
+  } catch (error) {
+    // If 2.5-flash still 404s (very rare), try 'gemini-1.5-flash' with the same 'v1' prefix.
+    console.error("API Error:", error.response?.data || error.message);
+    throw error;
+  }
 }
