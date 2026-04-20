@@ -1,8 +1,10 @@
 import React from 'react';
-import { 
-  View, Text, Image, FlatList, StyleSheet, 
-  SafeAreaView, TouchableOpacity, useWindowDimensions 
+import {
+  View, Text, Image, FlatList, StyleSheet,
+  SafeAreaView, TouchableOpacity, useWindowDimensions, image, Alert, Platform, Share
 } from 'react-native';
+
+import * as MediaLibrary from "expo-media-library";
 
 export default function BlueprintScreen({ route, navigation }) {
 
@@ -16,9 +18,9 @@ export default function BlueprintScreen({ route, navigation }) {
   const renderPhoto = ({ item }) => (
     <View style={styles.card}>
       <View style={styles.imageFrame}>
-        <Image 
-          source={{ uri: item.uri }} 
-          style={[styles.galleryImage, item.filterStyle]} 
+        <Image
+          source={{ uri: item.uri }}
+          style={[styles.galleryImage, item.filterStyle]}
         />
       </View>
       <View style={styles.cardInfo}>
@@ -27,6 +29,29 @@ export default function BlueprintScreen({ route, navigation }) {
       </View>
     </View>
   );
+
+  const displayPhoto = (uri) => {
+    Alert.alert(
+      "VIEW_IMAGE",
+      "This would open the image in a full-screen viewer.",
+      [{ text: "OK" }]
+    );
+  }
+
+  const saveImage = async (uri) => {
+    try {
+      // Request device storage access permission
+      const { status } = await MediaLibrary.requestPermissionsAsync();
+      if (status === "granted") {
+        // Save image to media library
+        await MediaLibrary.saveToLibraryAsync(uri);
+
+        console.log("Image successfully saved");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -41,6 +66,10 @@ export default function BlueprintScreen({ route, navigation }) {
 
         <TouchableOpacity>
           <Text style={styles.shareBtn}>SHARE_COLLECTION</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => saveImage(item.uri)}>
+          <Text style={styles.shareBtn}>SAVE_TO_DEVICE</Text>
         </TouchableOpacity>
       </View>
 
@@ -69,6 +98,11 @@ export default function BlueprintScreen({ route, navigation }) {
           </View>
         }
       />
+      renderItem={({ item }) => (
+          <TouchableOpacity onPress={() => displayPhoto(item.uri)} style={styles.imageFrame}>
+            <Image source={{ uri: item.uri }} style={styles.galleryImage} />
+          </TouchableOpacity>
+        )}
     </SafeAreaView>
   );
 }
