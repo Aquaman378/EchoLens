@@ -1,150 +1,77 @@
-import React from 'react';
-import {
-  View, Text, Image, FlatList, StyleSheet,
-  SafeAreaView, TouchableOpacity, useWindowDimensions, image, Alert, Platform, Share
-} from 'react-native';
+import axios from "axios";
+import * as FileSystem from "expo-file-system/legacy";
+import { Platform } from "react-native";
 
-import * as MediaLibrary from "expo-media-library";
+async function uriToBase64(uri) {
+  if (Platform.OS === "web") {
+    const response = await fetch(uri);
+    const blob = await response.blob();
 
-export default function BlueprintScreen({ route, navigation }) {
-
-  // Grab the photos + analysis passed from LabScreen
-  const { photos = [], analysis = null } = route.params || {};
-  const { width } = useWindowDimensions();
-
-  // 2-column grid sizing
-  const itemSize = (width - 60) / 2;
-
-  const renderPhoto = ({ item }) => (
-    <View style={styles.card}>
-      <View style={styles.imageFrame}>
-        <Image
-          source={{ uri: item.uri }}
-          style={[styles.galleryImage, item.filterStyle]}
-        />
-      </View>
-      <View style={styles.cardInfo}>
-        <Text style={styles.filename}>ASSET_{item.id.slice(-4)}</Text>
-        <Text style={styles.meta}>RENDER_COMPLETE</Text>
-      </View>
-    </View>
-  );
-
-  const displayPhoto = (uri) => {
-    Alert.alert(
-      "VIEW_IMAGE",
-      "This would open the image in a full-screen viewer.",
-      [{ text: "OK" }]
-    );
+    return await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result.split(",")[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
   }
-
-  const saveImage = async (uri) => {
-    try {
-      // Request device storage access permission
-      const { status } = await MediaLibrary.requestPermissionsAsync();
-      if (status === "granted") {
-        // Save image to media library
-        await MediaLibrary.saveToLibraryAsync(uri);
-
-        console.log("Image successfully saved");
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  return (
-    <SafeAreaView style={styles.container}>
-
-      {/* HEADER */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backBtn}>← RETURN_TO_LAB</Text>
-        </TouchableOpacity>
-
-        <Text style={styles.brand}>BLUEPRINT_V1</Text>
-
-        <TouchableOpacity>
-          <Text style={styles.shareBtn}>SHARE_COLLECTION</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => saveImage(item.uri)}>
-          <Text style={styles.shareBtn}>SAVE_TO_DEVICE</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* OPTIONAL: AI METADATA PANEL */}
-      {analysis && (
-        <View style={styles.analysisBox}>
-          <Text style={styles.analysisTitle}>AI ANALYSIS</Text>
-          <Text style={styles.analysisText}>{analysis}</Text>
-        </View>
-      )}
-
-      {/* GALLERY GRID */}
-      <FlatList
-        data={photos}
-        renderItem={renderPhoto}
-        keyExtractor={item => item.id}
-        numColumns={2}
-        columnWrapperStyle={styles.row}
-        contentContainerStyle={styles.listContent}
-        ListEmptyComponent={
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyText}>NO_ASSETS_IN_BLUEPRINT</Text>
-            <Text style={styles.emptySub}>
-              Collect edits in the Lab to populate this gallery.
-            </Text>
-          </View>
-        }
-      />
-      renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => displayPhoto(item.uri)} style={styles.imageFrame}>
-            <Image source={{ uri: item.uri }} style={styles.galleryImage} />
-          </TouchableOpacity>
-        )}
-    </SafeAreaView>
-  );
+  return await FileSystem.readAsStringAsync(uri, { encoding: "base64" });
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#000' },
-  header: {
-    padding: 16,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  },
-  backBtn: { color: '#888', fontSize: 12 },
-  brand: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
-  shareBtn: { color: '#007AFF', fontSize: 12 },
+const GEMINI_API_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY;
 
-  analysisBox: {
-    backgroundColor: '#111',
-    padding: 16,
-    marginHorizontal: 16,
-    marginBottom: 10,
-    borderRadius: 8
-  },
-  analysisTitle: { color: '#0f0', fontSize: 14, fontWeight: 'bold', marginBottom: 6 },
-  analysisText: { color: '#ccc', fontSize: 12, lineHeight: 18 },
+export async function askGemini(prompt, imageUri = null) {
+  let imagePart = null;
 
-  row: { justifyContent: 'space-between', marginBottom: 20 },
-  listContent: { padding: 20 },
+  if (imageUri) {
+    try {
+      const base64 = await uriToBase64(imageUri);
+      imagePart = {
+        inline_data: {
+          mime_type: "image/jpeg",
+          data: base64,
+        },
+      };
+    } catch (e) {
+      console.error("BASE64_CONVERSION_ERROR:", e);
+    }
+  }
 
-  card: { width: '48%' },
-  imageFrame: {
-    backgroundColor: '#111',
-    borderRadius: 10,
-    overflow: 'hidden',
-    height: 180
-  },
-  galleryImage: { width: '100%', height: '100%' },
-  cardInfo: { marginTop: 6 },
-  filename: { color: '#fff', fontSize: 12 },
-  meta: { color: '#888', fontSize: 10 },
+  try {
+    // 1. Updated to v1 (Stable) from v1beta
+    // 2. Added -latest to the model name to ensure the 404 is resolved
+    const response = await axios.post(
+      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        contents: [
+          {
+            parts: [
+              ...(imagePart ? [imagePart] : []),
+              {
+                text: "System: Use plain text and unicode math symbols only. Never use LaTeX. Answer this: " + prompt,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        headers: { "Content-Type": "application/json" }
+      }
+    );
 
-  emptyState: { alignItems: 'center', marginTop: 80 },
-  emptyText: { color: '#555', fontSize: 14 },
-  emptySub: { color: '#777', fontSize: 12, marginTop: 4 }
-});
+    const text = response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!text) throw new Error("EMPTY_AI_RESPONSE");
+    
+    return text.replace(/\*/g, ""); // Remove markdown bolding for cleaner UI
+
+  } catch (error) {
+    const status = error.response?.status;
+    const message = error.response?.data?.error?.message || error.message;
+
+    console.error(`AI_ERROR [${status}]:`, message);
+
+    if (status === 404) alert("ERROR 404: Model not found. Check URL version.");
+    if (status === 403) alert("ERROR 403: API Key issue. Check Google AI Studio.");
+    
+    throw error;
+  }
+}
