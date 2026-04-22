@@ -1,77 +1,186 @@
-import axios from "axios";
-import * as FileSystem from "expo-file-system/legacy";
-import { Platform } from "react-native";
+import React, { useEffect, useRef } from 'react';
+import {
+  View, Text, Image, FlatList, StyleSheet,
+  SafeAreaView, TouchableOpacity, useWindowDimensions, Alert, Share, Platform
+} from 'react-native';
+import * as MediaLibrary from "expo-media-library";
 
-async function uriToBase64(uri) {
-  if (Platform.OS === "web") {
-    const response = await fetch(uri);
-    const blob = await response.blob();
+export default function BlueprintScreen({ route, navigation }) {
+  const { photos = [], analysis = null } = route.params || {};
+  const mainContainerRef = useRef(null);
 
-    return await new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result.split(",")[1]);
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    });
-  }
-  return await FileSystem.readAsStringAsync(uri, { encoding: "base64" });
-}
-
-const GEMINI_API_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY;
-
-export async function askGemini(prompt, imageUri = null) {
-  let imagePart = null;
-
-  if (imageUri) {
-    try {
-      const base64 = await uriToBase64(imageUri);
-      imagePart = {
-        inline_data: {
-          mime_type: "image/jpeg",
-          data: base64,
-        },
-      };
-    } catch (e) {
-      console.error("BASE64_CONVERSION_ERROR:", e);
+  // FIX: Accessibility/Focus Error on Web
+  useEffect(() => {
+    if (Platform.OS === 'web' && mainContainerRef.current) {
+      // Force focus to the new screen so the browser doesn't 
+      // complain about focus being stuck on the hidden 'Lab' screen.
+      mainContainerRef.current.focus();
     }
-  }
+  }, []);
 
-  try {
-    // 1. Updated to v1 (Stable) from v1beta
-    // 2. Added -latest to the model name to ensure the 404 is resolved
-    const response = await axios.post(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        contents: [
-          {
-            parts: [
-              ...(imagePart ? [imagePart] : []),
-              {
-                text: "System: Use plain text and unicode math symbols only. Never use LaTeX. Answer this: " + prompt,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        headers: { "Content-Type": "application/json" }
+  const shareCollection = async () => {
+    try {
+      await Share.share({
+        message: `Check out my EchoLens Blueprint! I have ${photos.length} edited assets ready.`,
+      });
+    } catch (error) {
+      Alert.alert("Error", error.message);
+    }
+  };
+
+  const saveImage = async (uri) => {
+    if (Platform.OS === 'web') {
+      return Alert.alert("Web Notice", "Right-click the image to save on Web.");
+    }
+
+    try {
+      // 1. Request Permissions
+      const { status, canAskAgain } = await MediaLibrary.requestPermissionsAsync();
+
+      if (status !== 'granted') {
+        if (canAskAgain) {
+          Alert.alert("Permission Required", "EchoLens needs access to your gallery to save photos.");
+        } else {
+          Alert.alert("Permission Denied", "Please enable storage permissions in your device settings.");
+        }
+        return;
       }
-    );
 
-    const text = response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!text) throw new Error("EMPTY_AI_RESPONSE");
-    
-    return text.replace(/\*/g, ""); // Remove markdown bolding for cleaner UI
+      // 2. The "Two-Step" Fix: Create Asset first, then Save
+      // This is more stable for cached URIs
+      const asset = await MediaLibrary.createAssetAsync(uri);
+      await MediaLibrary.saveToLibraryAsync(asset);
 
-  } catch (error) {
-    const status = error.response?.status;
-    const message = error.response?.data?.error?.message || error.message;
+      Alert.alert("SUCCESS", "Asset saved to your device gallery.");
+    } catch (error) {
+      console.error("SAVE_ERROR:", error);
+      Alert.alert("SAVE_FAILED", "We couldn't write this file to your disk. Check if storage is full.");
+    }
+  };
 
-    console.error(`AI_ERROR [${status}]:`, message);
+  const renderPhoto = ({ item }) => (
+    <View style={styles.card}>
+      <TouchableOpacity
+        activeOpacity={0.9}
+        onPress={() => Alert.alert("ASSET_PREVIEW", `ID: ${item.id}`)}
+        style={styles.imageFrame}
+      >
+        <Image
+          source={{ uri: item.uri }}
+          style={[styles.galleryImage, item.filterStyle]}
+          resizeMode="cover"
+        />
+      </TouchableOpacity>
 
-    if (status === 404) alert("ERROR 404: Model not found. Check URL version.");
-    if (status === 403) alert("ERROR 403: API Key issue. Check Google AI Studio.");
-    
-    throw error;
-  }
+      <View style={styles.cardInfo}>
+        <Text style={styles.filename}>ASSET_{item.id.slice(-4)}</Text>
+        <TouchableOpacity onPress={() => saveImage(item.uri)}>
+          <Text style={styles.saveLink}>SAVE_DISK</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
+  return (
+    <SafeAreaView
+      ref={mainContainerRef}
+      style={styles.container}
+      // Accessibility properties for Web
+      {...(Platform.OS === 'web' ? { tabIndex: -1, accessibilityRole: 'main' } : {})}
+    >
+      {/* HEADER */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Text style={styles.backBtn}>← RETURN_LAB</Text>
+        </TouchableOpacity>
+
+        <Text style={styles.brand}>BLUEPRINT_V1</Text>
+
+        <TouchableOpacity onPress={shareCollection}>
+          <Text style={styles.shareBtn}>SHARE_ALL</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* AI METADATA PANEL */}
+      {analysis && (
+        <View style={styles.analysisBox}>
+          <Text style={styles.analysisTitle}>AI_INSIGHTS_REPORT</Text>
+          <Text style={styles.analysisText}>{analysis}</Text>
+        </View>
+      )}
+
+      {/* GALLERY GRID */}
+      <FlatList
+        data={photos}
+        renderItem={renderPhoto}
+        keyExtractor={item => item.id}
+        numColumns={2}
+        columnWrapperStyle={styles.row}
+        contentContainerStyle={styles.listContent}
+        ListEmptyComponent={
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyText}>NO_ASSETS_IN_BLUEPRINT</Text>
+            <Text style={styles.emptySub}>
+              Collect edits in the Lab to populate this gallery.
+            </Text>
+          </View>
+        }
+      />
+    </SafeAreaView>
+  );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#000',
+    // Outline: none is important for the Web focus fix
+    ...Platform.select({ web: { outlineStyle: 'none' } })
+  },
+  header: {
+    padding: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#111'
+  },
+  backBtn: { color: '#888', fontSize: 10, fontWeight: '700' },
+  brand: { color: '#fff', fontSize: 13, fontWeight: '900', letterSpacing: 2 },
+  shareBtn: { color: '#007AFF', fontSize: 10, fontWeight: 'bold' },
+
+  analysisBox: {
+    backgroundColor: '#0A0A0A',
+    padding: 15,
+    marginHorizontal: 16,
+    marginTop: 10,
+    borderRadius: 4,
+    borderLeftWidth: 3,
+    borderLeftColor: '#00FF99',
+  },
+  analysisTitle: { color: '#00FF99', fontSize: 11, fontWeight: 'bold', marginBottom: 4 },
+  analysisText: { color: '#888', fontSize: 11, lineHeight: 16 },
+
+  row: { justifyContent: 'space-between', marginBottom: 15 },
+  listContent: { padding: 16 },
+
+  card: { width: '48%' },
+  imageFrame: {
+    backgroundColor: '#111',
+    borderRadius: 2,
+    overflow: 'hidden',
+    height: 160,
+  },
+  galleryImage: { width: '100%', height: '100%' },
+  cardInfo: {
+    marginTop: 6,
+    flexDirection: 'row',
+    justifyContent: 'space-between'
+  },
+  filename: { color: '#666', fontSize: 9, fontWeight: 'bold' },
+  saveLink: { color: '#007AFF', fontSize: 9, fontWeight: 'bold' },
+
+  emptyState: { alignItems: 'center', marginTop: 100 },
+  emptyText: { color: '#222', fontSize: 14, fontWeight: 'bold' },
+  emptySub: { color: '#1A1A1A', fontSize: 12, marginTop: 4 }
+});
