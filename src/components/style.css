@@ -1,0 +1,165 @@
+/*CSS Variables and Global Styles*/
+
+* {
+    box-sizing: border-box;
+}
+
+:root {
+    --bg: #000000;
+    --surface: #0a0a0a;
+    --accent: #00FF99;
+    --text-main: #ffffff;
+    --text-dim: #888888;
+    --border: #1a1a1a;
+}
+
+body {
+    background-color: var(--bg);
+    color: var(--text-main);
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+header {
+    width: 100%;
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.status {
+    font-size: 0.7rem;
+    color: var(--accent);
+}
+
+.brand {
+    font-weight: 900;
+    letter-spacing: 3px;
+    font-size: 1.2rem;
+}
+
+.container {
+    max-width: 900px;
+    width: 90%;
+    padding: 40px 0;
+}
+
+/* AI Analysis Box */
+.analysis-box {
+    background: var(--surface);
+    border-left: 4px solid var(--accent);
+    padding: 20px;
+    margin-bottom: 40px;
+    border-radius: 4px;
+}
+
+.analysis-box h2 {
+    color: var(--accent);
+    font-size: 0.8rem;
+    margin: 0 0 10px 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.analysis-box p {
+    color: var(--text-dim);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Gallery Grid */
+.gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    border-color: var(--accent);
+}
+
+.image-container {
+    height: 200px;
+    background: #111;
+    position: relative;
+    overflow: hidden;
+}
+
+.gallery-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Simulation of AI Suggested Edits */
+    filter: brightness(1.2) contrast(1.1) saturate(1.1);
+}
+
+.card-info {
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.filename {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    font-weight: bold;
+}
+
+.btn-save {
+    color: #007AFF;
+    text-decoration: none;
+    font-size: 0.7rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.btn-save:hover {
+    text-decoration: underline;
+}
+
+.status-tag {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(0, 255, 153, 0.2);
+    color: var(--accent);
+    font-size: 0.6rem;
+    padding: 4px 8px;
+    border-radius: 2px;
+    font-weight: bold;
+}
+
+/* Inside your style.css */
+.my-div {
+    width: 100%;
+    margin-top: 60px;
+    padding: 30px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 0.6rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    box-sizing: border-box;
+}
+
+.my-div::before {
+    content: "© 2026 ECHOLENS_SYSTEMS // ";
+}
