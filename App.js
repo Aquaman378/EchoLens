@@ -5,6 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import AppNavigator from './src/navigation/AppNavigator';
 import MiniChat from './src/components/MiniChat';
 
+
 // WEB HEIGHT FIX: Forces the browser to recognize the app's height
 if (Platform.OS === 'web') {
   const style = document.createElement('style');

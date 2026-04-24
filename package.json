@@ -2,7 +2,7 @@
   "name": "echolens",
   "version": "1.0.0",
   "main": "index.js",
-  "homepage": "https://aquaman378.github.io/EchoLens/",
+  "homepage": "https://aquaman378.github.io/EchoLens",
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
@@ -12,6 +12,7 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
+    "@expo/metro-runtime": "~55.0.10",
     "@expo/vector-icons": "^15.1.1",
     "@google/genai": "^1.50.1",
     "@google/generative-ai": "^0.24.1",
@@ -25,6 +26,7 @@
     "expo-font": "~55.0.6",
     "expo-image-picker": "~55.0.19",
     "expo-media-library": "~55.0.15",
+    "expo-router": "~55.0.13",
     "expo-status-bar": "~55.0.5",
     "react": "19.2.0",
     "react-dom": "19.2.0",
