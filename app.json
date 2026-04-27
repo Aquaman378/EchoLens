@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "EchoLens",
-    "slug": "EchoLens",
+    "slug": "echoLens",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -29,8 +29,11 @@
       ]
     },
     "web": {
-      "bundler": "metro",
-      "baseUrl": "/EchoLens"
+      "output": "static",
+      "bundler": "metro"
+    },
+    "experiments": {
+      "baseUrl": "/EchoLens/"
     },
     "plugins": [
       "expo-font",
