@@ -29,8 +29,8 @@
       ]
     },
     "web": {
-      "output": "static",
-      "bundler": "metro"
+      "bundler": "metro",
+      "baseUrl": "/EchoLens"
     },
     "experiments": {
       "baseUrl": "/EchoLens/"
