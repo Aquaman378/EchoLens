@@ -32,9 +32,6 @@
       "bundler": "metro",
       "baseUrl": "/EchoLens"
     },
-    "experiments": {
-      "baseUrl": "/EchoLens/"
-    },
     "plugins": [
       "expo-font",
       "expo-router"

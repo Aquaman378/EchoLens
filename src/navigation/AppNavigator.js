@@ -2,9 +2,9 @@
 import { createStackNavigator } from '@react-navigation/stack';
 // Import your screens
 import HomeScreen from '../screens/HomeScreen.js';
-import LabScreen from '../screens/LabScreen';
-import ArchiveScreen from '../screens/ArchiveScreen';
-import BlueprintScreen from '../screens/BlueprintScreen'
+import LabScreen from '../screens/LabScreen.js';
+import ArchiveScreen from '../screens/ArchiveScreen.js';
+import BlueprintScreen from '../screens/BlueprintScreen.js'
 
 
 
