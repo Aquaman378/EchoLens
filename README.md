@@ -6,5 +6,5 @@
    - Copy the example file: `cp .env.example .env`
    - Open `.env` and add your [Google Gemini API Key](https://aistudio.google.com/).
 4. Start the app: `npx expo start`
-5. Here is the webiste I created: "https://aquaman378.github.io/EchoLens/"
+5. Here is the webiste I created: "https://photo-lens.netlify.app/"
    
