@@ -82,14 +82,21 @@ export default function LabScreen({ navigation }) {
     </View>
   );
 
+  const goHome = () => {
+    navigation.navigate('Home');
+  }
+
   return (
     <SafeAreaView style={styles.proContainer}>
       {/* HEADER */}
       <View style={styles.proHeader}>
-        <Text style={styles.proTitle}>ECHOLENS <Text style={{ fontWeight: '300' }}>RAW_EDITOR</Text></Text>
+        <Text style={styles.proTitle}>ECHOLENS <Text style={{ fontWeight: '300' }}>Raw Editor</Text></Text>
+        <TouchableOpacity style={styles.navButton} onPress={goHome}>
+          <Text style={styles.navButtonText}>Home</Text>
+        </TouchableOpacity>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <TouchableOpacity onPress={handleCollect} style={{ marginRight: 20 }}>
-            <Text style={{ color: '#888', fontSize: 10, fontWeight: 'bold' }}>COLLECT_EDIT</Text>
+            <Text style={{ color: '#888', fontSize: 10, fontWeight: 'bold' }}>Save Edit</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate('Blueprint', { photos: collection })}>
             <Text style={styles.exportBtn}>BLUEPRINT ({collection.length})</Text>

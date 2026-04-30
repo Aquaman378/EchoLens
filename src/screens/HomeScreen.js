@@ -32,6 +32,10 @@ export default function HomeScreen({ navigation }) {
         }
     };
 
+    const goHome = () => {
+        navigation.navigate('Home');
+    }
+
     return (
         <ScrollView stickyHeaderIndices={[0]} style={styles.websiteContent}>
             {/* 1. Sticky Navbar */}
@@ -41,6 +45,9 @@ export default function HomeScreen({ navigation }) {
                     <Text style={styles.navText}>Products</Text>
                     <Text style={styles.navText}>About</Text>
                 </View>
+                <TouchableOpacity style={styles.navButton} onPress={goHome}>
+                    <Text style={styles.navButtonText}>Home</Text>
+                </TouchableOpacity>
             </View>
 
             {/* 2. Hero Section */}

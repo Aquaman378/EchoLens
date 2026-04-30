@@ -30,7 +30,8 @@
     },
     "web": {
       "bundler": "metro",
-      "baseUrl": "/EchoLens"
+      "baseUrl": "/EchoLens",
+      "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "expo-font",

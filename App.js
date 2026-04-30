@@ -40,6 +40,6 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1, // Changed from 2 to 1
-    backgroundColor: '#000',
+    backgroundColor: 'blue',
   },
 });
