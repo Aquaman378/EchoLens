@@ -5,6 +5,9 @@ import HomeScreen from '../screens/HomeScreen.js';
 import LabScreen from '../screens/LabScreen.js';
 import ArchiveScreen from '../screens/ArchiveScreen.js';
 import BlueprintScreen from '../screens/BlueprintScreen.js'
+import AutoEdit from '../screens/AutoEdit.js';
+import { useNavigation } from '@react-navigation/native';
+
 
 
 
@@ -23,6 +26,7 @@ export default function AppNavigator() {
       <Stack.Screen name="Lab" component={LabScreen} />
       <Stack.Screen name="Archive" component={ArchiveScreen} />
       <Stack.Screen name="Blueprint" component={BlueprintScreen} />
+      <Stack.Screen name="AutoEdit" component={AutoEdit} />
     </Stack.Navigator>
   );
 }

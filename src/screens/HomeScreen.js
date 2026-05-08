@@ -32,6 +32,21 @@ export default function HomeScreen({ navigation }) {
         }
     };
 
+    const folderPhotoEditing = () => {
+        if (Platform.OS === 'web') {
+            navigation.navigate('AutoEdit');
+        } else {
+            Alert.alert(
+                "INITIALIZE TERMINAL",
+                "Open Automatic editor for image processing?",
+                [
+                    { text: "CANCEL", style: "cancel" },
+                    { text: "OPEN", onPress: () => navigation.navigate('AutoEdit') }
+                ]
+            );
+        }
+    };
+
     const goHome = () => {
         navigation.navigate('Home');
     }
@@ -75,13 +90,18 @@ export default function HomeScreen({ navigation }) {
                         style={styles.cardImage}
                     />
                     <View style={styles.cardContent}>
+                        <TouchableOpacity onPress={() => navigation.navigate('AutoEdit')}>
+                            <Text style={styles.cardButtonText}>Edit Image</Text>
+                        </TouchableOpacity>
+                    </View>
+                    <View style={styles.cardContent}>
                         <Text style={styles.cardTitle}>Intelligent Analysis</Text>
                         <Text style={styles.cardDescription}>
                             Ask questions about what you see and get instant, math-accurate responses.
                         </Text>
                     </View>
                 </View>
-                
+
                 <View style={styles.featureCard}>
                     <View style={styles.cardContent}>
                         <Text style={styles.cardTitle}>24/7 Support</Text>
