@@ -90,14 +90,18 @@ export default function HomeScreen({ navigation }) {
                         style={styles.cardImage}
                     />
                     <View style={styles.cardContent}>
+                        <Text style={styles.cardTitle}>Automatic Editing</Text>
+                        <Text style={styles.cardDescription}>
+                            Your images are analyzed by our API for little details
+                        </Text>
                         <TouchableOpacity onPress={() => navigation.navigate('AutoEdit')}>
-                            <Text style={styles.cardButtonText}>Edit Image</Text>
+                            <Text style={{fontSize: 16, color: '#007BFF', backgroundColor: 'transparent', alignItems: 'center' }}>Try It Out</Text>
                         </TouchableOpacity>
                     </View>
                     <View style={styles.cardContent}>
                         <Text style={styles.cardTitle}>Intelligent Analysis</Text>
                         <Text style={styles.cardDescription}>
-                            Ask questions about what you see and get instant, math-accurate responses.
+                            Your images are analyzed by our AI to suggest optimal edits, saving you time and enhancing creativity.
                         </Text>
                     </View>
                 </View>

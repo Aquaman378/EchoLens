@@ -15,6 +15,10 @@ export default function LabScreen({ navigation }) {
   const [activeTab, setActiveTab] = useState('Light');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
+  const goHome = () => {
+    navigation.navigate('Home');
+  }
+
   // Expanded settings for pro-level control
   const [settings, setSettings] = useState({
     brightness: 100, contrast: 100, exposure: 100,
@@ -82,17 +86,13 @@ export default function LabScreen({ navigation }) {
     </View>
   );
 
-  const goHome = () => {
-    navigation.navigate('Home');
-  }
-
   return (
     <SafeAreaView style={styles.proContainer}>
       {/* HEADER */}
       <View style={styles.proHeader}>
         <Text style={styles.proTitle}>ECHOLENS <Text style={{ fontWeight: '300' }}>Raw Editor</Text></Text>
-        <TouchableOpacity style={styles.navButton} onPress={goHome}>
-          <Text style={styles.navButtonText}>Home</Text>
+        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Home')}>
+          <Text style={{ color: 'white', fontSize: 24 }}>Home</Text>
         </TouchableOpacity>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <TouchableOpacity onPress={handleCollect} style={{ marginRight: 20 }}>

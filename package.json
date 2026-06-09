@@ -16,7 +16,7 @@
   "dependencies": {
     "@expo/metro-runtime": "~55.0.10",
     "@expo/vector-icons": "^15.1.1",
-    "@google/genai": "^1.50.1",
+    "@google/genai": "^1.52.0",
     "@google/generative-ai": "^0.24.1",
     "@modelcontextprotocol/sdk": "^1.10.2",
     "@react-native-community/slider": "5.1.2",
@@ -25,18 +25,20 @@
     "@react-navigation/native-stack": "^7.14.1",
     "@react-navigation/stack": "^7.7.1",
     "axios": "^1.13.5",
-    "expo": "~55.0.23",
+    "expo": "~55.0.24",
     "expo-constants": "~55.0.15",
     "expo-font": "~55.0.6",
     "expo-image-picker": "~55.0.20",
     "expo-linking": "~55.0.15",
-    "expo-media-library": "~55.0.16",
+    "expo-media-library": "~55.0.17",
     "expo-router": "~55.0.14",
     "expo-status-bar": "~55.0.6",
     "openai": "^4.104.0",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "react-native": "0.83.6",
+    "react-native-document-picker": "^9.3.1",
+    "react-native-fs": "^2.20.0",
     "react-native-gesture-handler": "~2.30.0",
     "react-native-get-random-values": "~1.11.0",
     "react-native-math-view": "^3.9.5",
@@ -53,7 +55,8 @@
   "devDependencies": {
     "@types/node": "^22.15.2",
     "@types/react": "~19.2.10",
+    "expo-module-scripts": "^3.0.5",
     "gh-pages": "^6.3.0",
-    "typescript": "~5.9.2"
+    "typescript": "^5.4.5"
   }
 }

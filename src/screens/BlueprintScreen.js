@@ -93,7 +93,9 @@ export default function BlueprintScreen({ route, navigation }) {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Text style={styles.backBtn}>← RETURN_LAB</Text>
         </TouchableOpacity>
-
+        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Home')}>
+          <Text style={{ color: 'white', fontSize: 24 }}>Home</Text>
+        </TouchableOpacity>
         <Text style={styles.brand}>BLUEPRINT_V1</Text>
 
         <TouchableOpacity onPress={shareCollection}>
