@@ -7,6 +7,7 @@ import Slider from '@react-native-community/slider';
 import * as ImagePicker from 'expo-image-picker';
 import { LabScreenStyles as styles } from '../components/styles';
 import { askGemini } from '../services/gemini';
+import { ERROR_MESSAGES } from '../config/constants';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function LabScreen({ navigation }) {
@@ -58,7 +59,7 @@ export default function LabScreen({ navigation }) {
   };
 
   const handleCollect = () => {
-    if (!image) return Alert.alert("EMPTY CANVAS", "Import an asset before collecting.");
+    if (!image) return Alert.alert("EMPTY CANVAS", ERROR_MESSAGES.EMPTY_CANVAS);
     const newAsset = {
       id: Date.now().toString(),
       uri: image,
@@ -86,6 +87,42 @@ export default function LabScreen({ navigation }) {
     </View>
   );
 
+<<<<<<< HEAD
+=======
+  const goHome = () => {
+    navigation.navigate('Home');
+  };
+
+  const handleImagePick = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({ quality: 1 });
+      if (!result.canceled) {
+        setImage(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.error('Image pick error:', error);
+      Alert.alert('Error', 'Failed to pick image');
+    }
+  };
+
+  const handleAnalyze = async () => {
+    if (!image) {
+      Alert.alert("ERROR", ERROR_MESSAGES.NO_IMAGE);
+      return;
+    }
+    
+    setIsAnalyzing(true);
+    try {
+      const analysis = await askGemini("Extract metadata and describe this photo.", image);
+      navigation.navigate("Blueprint", { photos: collection, analysis });
+    } catch (err) {
+      Alert.alert("AI_FAILURE", err.message || ERROR_MESSAGES.AI_FAILURE);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+>>>>>>> e27c09483a551a3e46d5df91f73ffedc925bae64
   return (
     <SafeAreaView style={styles.proContainer}>
       {/* HEADER */}
@@ -121,10 +158,7 @@ export default function LabScreen({ navigation }) {
 
         {/* CANVAS */}
         <View style={styles.proCanvas}>
-          <TouchableOpacity onPress={async () => {
-            let r = await ImagePicker.launchImageLibraryAsync({ quality: 1 });
-            if (!r.canceled) setImage(r.assets[0].uri);
-          }} style={styles.proImageBox}>
+          <TouchableOpacity onPress={handleImagePick} style={styles.proImageBox}>
             {image ? (
               <Image source={{ uri: image }} style={[styles.proImage, getFilters()]} resizeMode="contain" />
             ) : (
@@ -175,18 +209,7 @@ export default function LabScreen({ navigation }) {
           <TouchableOpacity
             style={{ backgroundColor: '#111', padding: 15, borderRadius: 8, marginTop: 10 }}
             disabled={isAnalyzing}
-            onPress={async () => {
-              if (!image) return Alert.alert("ERROR", "No image to analyze.");
-              setIsAnalyzing(true);
-              try {
-                const analysis = await askGemini("Extract metadata and describe this photo.", image);
-                navigation.navigate("Blueprint", { photos: collection, analysis });
-              } catch (err) {
-                Alert.alert("AI_FAILURE", err.message);
-              } finally {
-                setIsAnalyzing(false);
-              }
-            }}
+            onPress={handleAnalyze}
           >
             {isAnalyzing ? (
               <ActivityIndicator color="#007AFF" />
