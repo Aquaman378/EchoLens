@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import {
   View,
   Text,
@@ -9,17 +9,18 @@ import {
   Platform,
   Alert,
 } from 'react-native';
-import { askMiniChat } from '../services/gemini'; // This now calls the text-only function
+import { askMiniChat } from '../services/gemini';
 import { MiniChatStyles as styles } from './styles';
+import { ERROR_MESSAGES } from '../config/constants';
 
-export default function MiniChat() {
+const MiniChat = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
   const [chatHistory, setChatHistory] = useState([]);
   const [loading, setLoading] = useState(false);
   const scrollViewRef = useRef();
 
-  const handleTask = async () => {
+  const handleTask = useCallback(async () => {
     if (!input.trim()) return;
 
     // 1. Prepare user message
@@ -36,8 +37,7 @@ export default function MiniChat() {
     setLoading(true);
 
     try {
-      // 3. Call only the text-based service
-      // We no longer pass an image URI or Base64 here
+      // 3. Call the text-based service
       const result = await askMiniChat(currentInput);
 
       const aiMsg = {
@@ -45,15 +45,19 @@ export default function MiniChat() {
         role: 'ai',
         text: result,
       };
-      
+
       setChatHistory(prev => [...prev, aiMsg]);
     } catch (err) {
       console.error("Chat Error:", err);
-      Alert.alert('Chat Error', 'The AI assistant is unavailable right now.');
+      Alert.alert('Chat Error', ERROR_MESSAGES.CHAT_ERROR);
     } finally {
       setLoading(false);
     }
-  };
+  }, [input]);
+
+  const toggleChat = useCallback(() => {
+    setIsOpen(prev => !prev);
+  }, []);
 
   return (
     <>
@@ -104,7 +108,7 @@ export default function MiniChat() {
 
             {loading && (
               <View style={styles.aiBubble}>
-                 <Text style={{ color: '#000', fontStyle: 'italic' }}>Thinking...</Text>
+                <Text style={{ color: '#000', fontStyle: 'italic' }}>Thinking...</Text>
               </View>
             )}
           </ScrollView>
@@ -118,6 +122,7 @@ export default function MiniChat() {
               onChangeText={setInput}
               onSubmitEditing={handleTask}
               returnKeyType="send"
+              editable={!loading}
             />
           </View>
         </KeyboardAvoidingView>
@@ -126,7 +131,7 @@ export default function MiniChat() {
       {/* FAB Button */}
       <TouchableOpacity
         style={styles.fab}
-        onPress={() => setIsOpen(!isOpen)}
+        onPress={toggleChat}
         activeOpacity={0.8}
       >
         <Text style={styles.fabIcon}>
@@ -135,4 +140,6 @@ export default function MiniChat() {
       </TouchableOpacity>
     </>
   );
-}
+};
+
+export default React.memo(MiniChat);
